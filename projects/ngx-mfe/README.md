@@ -29,11 +29,11 @@ import * as workspaceConfig from '../../../../../workspace.json';
 		MfeModule.forRoot({
 			mfeConfig,
 			workspaceConfig,
-			mfeProjectPattern: /^client-.+-mfe$/g,
-			preload: ['client-loaders-mfe', 'client-fallbacks-mfe'],
+			mfeProjectPattern: /^.+-mfe$/g,
+			preload: ['loaders-mfe', 'fallbacks-mfe'],
 			delay: 500,
-			loader: 'client-loaders-mfe/spinner',
-			fallback: 'client-fallbacks-mfe/mfe-fallback',
+			loader: 'loaders-mfe/spinner',
+			fallback: 'fallbacks-mfe/not-found',
 		}),
 	],
 })
@@ -56,7 +56,7 @@ List of all available options:
 -   **preload?** - list of micro-frontends, bundles of the specified micro-frontends will be loaded immediately and saved in the cache.
 -   **delay?** - The delay between displaying the contents of the bootloader and the micro-frontend. This is to avoid flickering when the micro-frontend loads very quickly. _By default 0._
 -   **loader?** - Displayed when loading bundle of micro-frontend. Indicated as a micro-frontend string _example: 'loader-mfe/spinner'._
--   **fallback?** - Displayed when micro-frontend component loaded with error. Indicated as a micro-frontend string _example: 'fallback-mfe/not-loaded'._
+-   **fallback?** - Displayed when micro-frontend component loaded with error. Indicated as a micro-frontend string _example: 'fallback-mfe/not-found'._
 
     > For better UX, add loader and fallback micro-frontends to [preload]() array.
 

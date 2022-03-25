@@ -1,6 +1,6 @@
 import { Compiler, ComponentFactory, Injectable, Injector, Type } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-import { loadMfeComponent, loadMfeModule, validateMfeString } from '../helpers';
+import { loadMfeComponent, loadMfeModule } from '../helpers';
 import { LoadedMfe } from '../interfaces';
 import { MfeComponentsCache } from './mfe-components-cache.service';
 
@@ -29,8 +29,6 @@ export class MfeService {
 		injector: Injector = this._injector
 	): Promise<ComponentFactory<TComponent>> {
 		try {
-			validateMfeString(mfe);
-
 			if (this._cache.isRegistered(mfe)) {
 				return lastValueFrom(this._cache.getValue(mfe));
 			}
@@ -62,8 +60,6 @@ export class MfeService {
 	public async load<TModule = unknown, TComponent = unknown>(
 		mfe: string
 	): Promise<LoadedMfe<TModule, TComponent>> {
-		validateMfeString(mfe);
-
 		const ModuleClass = await this.loadModule<TModule>(mfe);
 		const ComponentClass = await this.loadComponent<TComponent>(mfe);
 
@@ -75,8 +71,6 @@ export class MfeService {
 	 * @param mfe Micro-frontend string
 	 */
 	public async loadModule<T>(mfe: string): Promise<Type<T>> {
-		validateMfeString(mfe);
-
 		return await loadMfeModule<T>(mfe);
 	}
 
@@ -85,8 +79,6 @@ export class MfeService {
 	 * @param mfe Micro-frontend string
 	 */
 	public async loadComponent<T>(mfe: string): Promise<Type<T>> {
-		validateMfeString(mfe);
-
 		return await loadMfeComponent<T>(mfe);
 	}
 }
