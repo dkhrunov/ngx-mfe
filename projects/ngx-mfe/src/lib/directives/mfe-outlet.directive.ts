@@ -14,9 +14,9 @@ import {
 } from '@angular/core';
 import { EChangesStrategy, TrackChanges } from '../decorators';
 import { validateMfeString } from '../helpers';
+import { OPTIONS } from '../injection-tokens';
 import { IMfeModuleRootOptions } from '../interfaces';
 import { DynamicComponentBinding, MfeComponentsCache, MfeService } from '../services';
-import { OPTIONS } from '../tokens';
 import { MfeOutletInputs, MfeOutletOutputs } from '../types';
 
 const delay = <T>(time: number) => new Promise<T>((resolve) => setTimeout(resolve, time));

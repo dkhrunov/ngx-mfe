@@ -3,8 +3,7 @@ import { lastValueFrom } from 'rxjs';
 import { loadMfeComponent, loadMfeModule } from '../helpers';
 import { LoadedMfe } from '../interfaces';
 import { MfeComponentsCache } from './mfe-components-cache.service';
-
-
+ 
 /**
  * A low-level service for loading a micro-frontend module and a component,
  * or getting component factory.

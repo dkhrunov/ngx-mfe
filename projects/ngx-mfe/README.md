@@ -8,6 +8,8 @@
 
 > I recommend using the nx monorepository.
 
+> If you are using Angular v12 and @angular-architects/module-federation v12.2.0 you should use this library v1.0.2.
+
 ## Contents
 
 -   [Сonvention](#convention)
@@ -19,7 +21,9 @@
 
 ## Сonvention
 
-1. The key of the exposed element from the ModuleFederationPlugin must match the element's class name.
+1. Micro-frontend string or MFE string means this type of string 'mfe-app/exposed-component'. All elements in this line are designed in kebab-case style. The first half in the example above 'mfe-app/' is the name of the mfe application, the second half is the name of a exposed component or module declared in the ModuleFederationPlugin in webpack.config.js.
+
+2. The key of the exposed element from the ModuleFederationPlugin must match the element's class name.
 
 ```js
 // webpack.config.js file
@@ -55,7 +59,7 @@ import { HomeComponent } from './home.component';
 export class HomeModule {}
 ```
 
-2. If you use plugin-based approach with **MfeOutletDirective** then you should expose from ModuleFederationPlugin both component and module, that decalred this component. They should have same name and differ only in the '*...Component*' or '*...Module*' prefix, example of home.component.ts:
+3. If you use plugin-based approach with **MfeOutletDirective** then you should expose from ModuleFederationPlugin both component and module, that decalred this component. They should have same name and differ only in the '*...Component*' or '*...Module*' prefix, example of home.component.ts:
 
 ```js
 new ModuleFederationPlugin({
@@ -68,9 +72,9 @@ new ModuleFederationPlugin({
 });
 ```
 
-3. Internal сonvention. All micro-frontend designations are in kebab-case style. This means that if you have a micro-frontend named `fallbacks-mfe`, then you must specify the line `fallback-mfe/component` in all functions and directives of this library. Same rule for component name, if you have a component named `NotFoundComponent` you must sets `fallbacks-mfe/not-found`.
+4. Internal сonvention. All micro-frontend designations are in kebab-case style. This means that if you have a micro-frontend named `fallbacks-mfe`, then you must specify the line `fallback-mfe/component` in all functions and directives of this library. Same rule for component name, if you have a component named `NotFoundComponent` you must sets `fallbacks-mfe/not-found`.
 
-4. All functions and directives load micro-frontends with predefined option `type = 'module'`. More about type as `module` or `script` [here](https://www.angulararchitects.io/en/aktuelles/dynamic-module-federation-with-angular/) and here [migrations guid to Angular v13](https://github.com/angular-architects/module-federation-plugin/blob/main/migration-guide.md)
+5. All functions and directives load micro-frontends with predefined option `type = 'module'`. More about type as `module` or `script` [here](https://www.angulararchitects.io/en/aktuelles/dynamic-module-federation-with-angular/) and here [migrations guid to Angular v13](https://github.com/angular-architects/module-federation-plugin/blob/main/migration-guide.md)
 
 ## Configuration
 
@@ -104,10 +108,10 @@ List of all available options:
 
     > More about remoteEntryUrl in Micro-frontends world [here](https://www.angulararchitects.io/en/aktuelles/the-microfrontend-revolution-module-federation-in-webpack-5/)
 
--   **preload?** - list of micro-frontends, bundles of the specified micro-frontends will be loaded immediately and saved in the cache.
--   **delay?** - The delay between displaying the contents of the bootloader and the micro-frontend. This is to avoid flickering when the micro-frontend loads very quickly. _By default 0._
--   **loader?** - Displayed when loading bundle of micro-frontend. Indicated as a micro-frontend string _example: 'loader-mfe/spinner'._
--   **fallback?** - Displayed when micro-frontend component loaded with error. Indicated as a micro-frontend string _example: 'fallback-mfe/not-found'._
+-   **preload** (Optional) - list of micro-frontends, bundles of the specified micro-frontends will be loaded immediately and saved in the cache.
+-   **delay** (Optional) *Now only works in plugin-based approach*. - The delay between displaying the contents of the bootloader and the micro-frontend. This is to avoid flickering when the micro-frontend loads very quickly. _By default 0._
+-   **loader** (Optional) *Now only works in plugin-based approach*. - Displayed when loading bundle of micro-frontend. Indicated as a micro-frontend string _example: 'loader-mfe/spinner'._
+-   **fallback** (Optional) *Now only works in plugin-based approach*. - Displayed when micro-frontend component loaded with error. Indicated as a micro-frontend string _example: 'fallback-mfe/not-found'._
 
     > For better UX, add loader and fallback micro-frontends to [preload]() array.
 

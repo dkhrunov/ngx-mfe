@@ -2,9 +2,9 @@ import { loadRemoteEntry } from '@angular-architects/module-federation';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { MfeOutletDirective } from './directives';
 import { validateMfeString } from './helpers';
+import { OPTIONS } from './injection-tokens';
 import { IMfeModuleRootOptions } from './interfaces';
 import { MfeRegistry } from './registry';
-import { OPTIONS } from './tokens';
 
 /**
  * Core lib of micro-frontend architecture.
