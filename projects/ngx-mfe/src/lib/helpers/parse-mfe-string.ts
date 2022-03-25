@@ -29,7 +29,5 @@ export function parseMfeString(
 		.join('')
 		.concat(type);
 
-	console.log({ type: 'module', remoteEntry, exposedModule });
-
 	return { type: 'module', remoteEntry, exposedModule };
 }

@@ -10,11 +10,67 @@
 
 ## Contents
 
+-   [Сonvention](#convention)
 -   [Configuration](#configuration)
 -   [Configuration options](#configuration-options)
 -   [Use in Routing](#use-in-routing)
 -   [Use in plugin-based approach](#use-in-plugin-based-approach)
 -   [Use MfeService](#use-mfeservice)
+
+## Сonvention
+
+1. The key of the exposed element from the ModuleFederationPlugin must match the element's class name.
+
+```js
+// webpack.config.js file
+new ModuleFederationPlugin({
+	[...]
+	exposes: {
+		'HomeModule': 'apps/login/src/app/home/home.module.ts',
+	},
+	[...]
+});
+```
+
+```typescript
+// home.module.ts file
+import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { HomeComponent } from './home.component';
+
+
+@NgModule({
+	declarations: [HomeComponent],
+	imports: [
+		CommonModule,
+		RouterModule.forChild([
+			{
+				path: '',
+				component: HomeComponent,
+			},
+		]),
+	],
+})
+export class HomeModule {}
+```
+
+2. If you use plugin-based approach with **MfeOutletDirective** then you should expose from ModuleFederationPlugin both component and module, that decalred this component. They should have same name and differ only in the '*...Component*' or '*...Module*' prefix, example of home.component.ts:
+
+```js
+new ModuleFederationPlugin({
+	[...]
+	exposes: {
+		'HomeModule': 'apps/login/src/app/home/home.module.ts',
+		'HomeComponent': 'apps/login/src/app/home/home.component.ts',
+	},
+	[...]
+});
+```
+
+3. Internal сonvention. All micro-frontend designations are in kebab-case style. This means that if you have a micro-frontend named `fallbacks-mfe`, then you must specify the line `fallback-mfe/component` in all functions and directives of this library. Same rule for component name, if you have a component named `NotFoundComponent` you must sets `fallbacks-mfe/not-found`.
+
+4. All functions and directives load micro-frontends with predefined option `type = 'module'`. More about type as `module` or `script` [here](https://www.angulararchitects.io/en/aktuelles/dynamic-module-federation-with-angular/) and here [migrations guid to Angular v13](https://github.com/angular-architects/module-federation-plugin/blob/main/migration-guide.md)
 
 ## Configuration
 
@@ -189,7 +245,7 @@ This architectural approach will use **MfeOutletDirective**.
 ```html
 <ng-container
 	*mfeOutlet="
-	'client-dashboard-mfe/entry';
+	'dashboard-mfe/entry';
 	loader: loader;
 	fallback: 'fallback-mfe/not-found'
 "

@@ -60,8 +60,7 @@ export class MfeModule {
 function loadMfeBundleWithMfeRegistry(mfeRegistry: MfeRegistry): (mfe: string) => Promise<void> {
 	return (mfe: string): Promise<void> => {
 		const remoteEntry = mfeRegistry.getMfeRemoteEntry(mfe);
-		const remoteName = mfe.replace(/-/g, '_');
 
-		return loadRemoteEntry(remoteEntry, remoteName);
+		return loadRemoteEntry({ type: 'module', remoteEntry});
 	};
 }
