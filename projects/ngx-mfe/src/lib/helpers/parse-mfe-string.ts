@@ -1,7 +1,7 @@
 import { LoadRemoteModuleOptions } from '@angular-architects/module-federation';
-
 import { MfeRegistry } from '../registry';
 import { validateMfeString } from './validate-mfe-string';
+
 
 /**
  * Parse micro-frontend string and return options for
@@ -13,7 +13,7 @@ import { validateMfeString } from './validate-mfe-string';
 export function parseMfeString(
 	mfe: string,
 	type: 'Module' | 'Component' = 'Module'
-): Required<LoadRemoteModuleOptions> {
+): LoadRemoteModuleOptions {
 	validateMfeString(mfe);
 
 	const [appName, exposedItem] = mfe.split('/');

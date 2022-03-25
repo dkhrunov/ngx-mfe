@@ -1,6 +1,6 @@
 # Angular micro-frontend library - ngx-mfe
 
-#### This library depends on [@angular-architects/module-federation v12.2.0](https://github.com/angular-architects/module-federation-plugin) and [Nx monorepo](https://nx.dev/)
+#### This library depends on [@angular-architects/module-federation v14.2.1](https://github.com/angular-architects/module-federation-plugin) and [Nx monorepo](https://nx.dev/)
 
 > To use this library, you must create your project with the nx monorepository.
 
