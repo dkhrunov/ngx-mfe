@@ -1,13 +1,6 @@
 /**
- * MFE options.
+ * MFE app options.
  */
 export interface IMfeConfig {
-	/**
-	 * Url to remote (Micro-frontend) app.
-	 */
-	remoteEntryUrl: string;
-	/**
-	 * Name of the exposed file.
-	 */
-	remoteEntryFileName: string;
+	[mfeApp: string]: string;
 }

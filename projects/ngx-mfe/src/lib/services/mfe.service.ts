@@ -44,7 +44,7 @@ export class MfeService {
 			this._cache.setValue(mfe, componentFactory);
 
 			return componentFactory;
-		} catch (error) {
+		} catch (error: any) {
 			if (this._cache.isRegistered(mfe)) {
 				this._cache.setError(mfe, error);
 			}

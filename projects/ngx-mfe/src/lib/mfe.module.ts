@@ -1,6 +1,5 @@
-import { ModuleWithProviders, NgModule } from '@angular/core';
 import { loadRemoteEntry } from '@angular-architects/module-federation';
-
+import { ModuleWithProviders, NgModule } from '@angular/core';
 import { MfeOutletDirective } from './directives';
 import { validateMfeString } from './helpers';
 import { IMfeModuleRootOptions } from './interfaces';
@@ -25,11 +24,7 @@ export class MfeModule {
 	 * @param options Object of options.
 	 */
 	public static forRoot(options: IMfeModuleRootOptions): ModuleWithProviders<MfeModule> {
-		const mfeRegistry = MfeRegistry.getInstance(
-			options.mfeConfig,
-			options.workspaceConfig,
-			options.mfeProjectPattern
-		);
+		const mfeRegistry = MfeRegistry.getInstance(options.mfeConfig);
 		const loadMfeBundle = loadMfeBundleWithMfeRegistry(mfeRegistry);
 
 		if (options.loader) validateMfeString(options.loader);
