@@ -19,9 +19,9 @@
 		"email": "therealpanda98@gmail.com"
 	},
 	"peerDependencies": {
-		"@angular/common": "^12.2.0",
-		"@angular/core": "^12.2.0",
-		"@angular-architects/module-federation": "^12.2.0"
+		"@angular/common": "^13.3.0",
+		"@angular/core": "^13.3.0",
+		"@angular-architects/module-federation": "^14.2.1"
 	},
 	"dependencies": {
 		"tslib": "^2.3.0"
