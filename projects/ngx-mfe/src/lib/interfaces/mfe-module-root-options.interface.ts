@@ -1,24 +1,13 @@
 import { IMfeConfig } from './mfe-config.interface';
-import { IWorkspaceConfig } from './workspace-config.interface';
 
 /**
  * Global options.
  */
 export interface IMfeModuleRootOptions {
 	/**
-	 * Options for Micro-frontend app.
+	 * Options for each micro-frontend app.
 	 */
 	mfeConfig: IMfeConfig;
-	/**
-	 * Content of the workspace.json or angular.json file.
-	 */
-	workspaceConfig: IWorkspaceConfig;
-	/**
-	 * RegExp for by which projects will be selected from the workspace.json or angular.json.
-	 *
-	 * If not specified, it will select all.
-	 */
-	mfeProjectPattern?: RegExp;
 	/**
 	 * List of micro-fronts, bundles of the specified micro-fronts
 	 * will be loaded immediately and saved in the cache.

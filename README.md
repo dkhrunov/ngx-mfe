@@ -21,15 +21,14 @@
 To configure this library, you should import MfeModule to core.module/app.module once for the entire application:
 
 ```typescript
-import * as mfeConfig from '../../../../../mfe-config.json';
-import * as workspaceConfig from '../../../../../workspace.json';
-
 @NgModule({
 	imports: [
 		MfeModule.forRoot({
-			mfeConfig,
-			workspaceConfig,
-			mfeProjectPattern: /^.+-mfe$/g,
+			mfeConfig: {
+				"dashboard-mfe": "http://localhost:4001/remoteEntry.js",
+				"loaders-mfe": "http://localhost:4002/remoteEntry.js",
+				"fallbacks-mfe": "http://localhost:4003/remoteEntry.js"
+			},
 			preload: ['loaders-mfe', 'fallbacks-mfe'],
 			delay: 500,
 			loader: 'loaders-mfe/spinner',
@@ -44,15 +43,11 @@ export class CoreModule {}
 
 List of all available options:
 
--   **mfeConfig** - object with two required fields: remoteEntryUrl and remoteEntryFileName.
+-   **mfeConfig** - its map, key is micro-frontend app name and value is remoteEntryUrl string.
+	> remoteEntryUrl - URL where runs micro-frontends.
 
-    -   remoteEntryUrl - URL where runs micro-frontends.
-    -   remoteEntryFileNam - Js bundle of micro-frontend, by default it`s 'remoteEntry.js'.
+    > More about remoteEntryUrl in Micro-frontends world [here](https://www.angulararchitects.io/en/aktuelles/the-microfrontend-revolution-module-federation-in-webpack-5/)
 
-    > More about remoteEntryUrl and remoteEntryFileNam properties in Micro-frontends world [here](https://www.angulararchitects.io/en/aktuelles/the-microfrontend-revolution-module-federation-in-webpack-5/)
-
--   **workspaceConfig** - content of the workspace.json or angular.json file.
--   **mfeProjectPattern?** - RegExp for by which projects will be selected from the workspace.json or angular.json. _If not specified, it will select all._
 -   **preload?** - list of micro-frontends, bundles of the specified micro-frontends will be loaded immediately and saved in the cache.
 -   **delay?** - The delay between displaying the contents of the bootloader and the micro-frontend. This is to avoid flickering when the micro-frontend loads very quickly. _By default 0._
 -   **loader?** - Displayed when loading bundle of micro-frontend. Indicated as a micro-frontend string _example: 'loader-mfe/spinner'._
