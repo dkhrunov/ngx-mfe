@@ -23,12 +23,13 @@ export function parseMfeString(
 	}
 
 	const remoteEntry = MfeRegistry.getInstance().getMfeRemoteEntry(appName);
-	const remoteName = appName.replace(/-/g, '_');
 	const exposedModule = exposedItem
 		.split('-')
 		.map((x) => x.charAt(0).toUpperCase() + x.substr(1))
 		.join('')
 		.concat(type);
 
-	return { remoteEntry, remoteName, exposedModule };
+	console.log({ type: 'module', remoteEntry, exposedModule });
+
+	return { type: 'module', remoteEntry, exposedModule };
 }
