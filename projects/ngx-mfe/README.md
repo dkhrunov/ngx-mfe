@@ -1,23 +1,22 @@
 # Angular micro-frontend library - ngx-mfe
 
-#### This library depends on [@angular-architects/module-federation v14.2.1](https://github.com/angular-architects/module-federation-plugin)
+A library for working with MFE in Angular in a plugin-based approach and a routing-based approach.
 
-> Thanks to Manfred Steyer for your [series of posts](https://www.angulararchitects.io/en/aktuelles/the-microfrontend-revolution-module-federation-in-webpack-5/) about Module Federation in Webpack 5 and Micro-frontends.
+------
 
-> Note: before using, check out a [series of posts](https://www.angulararchitects.io/en/aktuelles/the-microfrontend-revolution-module-federation-in-webpack-5/) from Manfred Steyer.
+This library depends on [@angular-architects/module-federation v14.2.1](https://github.com/angular-architects/module-federation-plugin) and Anagular v13
 
-> I recommend using the nx monorepository.
+> If you are using Angular v12 and @angular-architects/module-federation v12.2.0 you should use this [library v1.0.2](https://github.com/dkhrunov/ngx-mfe/tree/1.0.2).
 
-> If you are using Angular v12 and @angular-architects/module-federation v12.2.0 you should use this library v1.0.2.
+
+Thanks to Manfred Steyer for your [series of posts](https://www.angulararchitects.io/en/aktuelles/the-microfrontend-revolution-module-federation-in-webpack-5/) about Module Federation in Webpack 5 and Micro-frontends.
 
 ## Contents
 
 -   [Сonvention](#convention)
--   [Configuration](#configuration)
--   [Configuration options](#configuration-options)
--   [Use in Routing](#use-in-routing)
--   [Use in plugin-based approach](#use-in-plugin-based-approach)
--   [Use MfeService](#use-mfeservice)
+-   [Configuring](#configuring)
+-   [Load MFE by Route](#load-mfe-by-route)
+-   [Load MFE in HTML template / plugin-based approach](#load-mfe-in-html-template--plugin-based-approach)
 
 ## Сonvention
 
@@ -76,7 +75,7 @@ new ModuleFederationPlugin({
 
 5. All functions and directives load micro-frontends with predefined option `type = 'module'`. More about type as `module` or `script` [here](https://www.angulararchitects.io/en/aktuelles/dynamic-module-federation-with-angular/) and here [migrations guid to Angular v13](https://github.com/angular-architects/module-federation-plugin/blob/main/migration-guide.md)
 
-## Configuration
+## Configuring
 
 To configure this library, you should import MfeModule to core.module/app.module once for the entire application:
 
@@ -99,8 +98,6 @@ To configure this library, you should import MfeModule to core.module/app.module
 export class CoreModule {}
 ```
 
-## Configuration options
-
 List of all available options:
 
 -   **mfeConfig** - its map, key is micro-frontend app name and value is remoteEntryUrl string.
@@ -115,7 +112,7 @@ List of all available options:
 
     > For better UX, add loader and fallback micro-frontends to [preload]() array.
 
-## Use in Routing
+## Load MFE by Route
 
 To use micro-frontends in Routing, it is enough to import and use the helper function called **loadMfeModule**, like in the example below:
 
@@ -138,7 +135,7 @@ const routes: Routes = [
 export class AppRoutingModule {}
 ```
 
-## Use in plugin-based approach
+## Load MFE in HTML template / plugin-based approach
 
 This approach allows us to load micro-frontends directly from HTML.
 
@@ -282,3 +279,6 @@ You can load micro-frontend module class and component class by using **MfeServi
 -   `loadModule<M>(mfe: string): Promise<Type<M>>` - Loads an exposed micro-frontend module class.
 
 -   `loadComponent<C>(mfe: string): Promise<Type<C>>` - Loads an exposed micro-frontend component class.
+
+
+`interface LoadedMfe<TModule = unknown, TComponent = unknown> { ModuleClass: Type<TModule>; ComponentClass: Type<TComponent>; }`
