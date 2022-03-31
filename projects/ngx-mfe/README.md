@@ -30,6 +30,11 @@ The main feature of the **ngx-mfe** library is ability to work with micro-fronte
 
 🔥 Configure different remoteEntryUrl of the MFE for different builds (dev/prod/etc.).
 
+# Example
+- [Here you can find an example application using Micro-frontend architecture.](https://github.com/dkhrunov/ngx-mfe-test)
+- [Here you can find a series of articles about Micro-frontends/Module Federation and a step-by-step guide to building an application with Micro-frontends.](https://dekh.medium.com/angular-micro-frontend-architecture-part-1-3-the-concept-of-micro-frontend-architecture-2ff56a5ac264)
+
+
 ## Contents
 
 -   [Conventions](#conventions)
