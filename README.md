@@ -4,12 +4,31 @@ A library for working with MFE in Angular in a plugin-based approach and a routi
 
 ------
 
-This library depends on [@angular-architects/module-federation v14](https://github.com/angular-architects/module-federation-plugin) and Angular v13
+This library depends on [@angular-architects/module-federation v14](https://www.npmjs.com/package/@angular-architects/module-federation) and Angular v13
 
 > If you are using Angular v12 and @angular-architects/module-federation v12.2.0 you should use this [library v1.0.2](https://github.com/dkhrunov/ngx-mfe/tree/1.0.2).
 
 
-Thanks to Manfred Steyer for your [series of posts](https://www.angulararchitects.io/en/aktuelles/the-microfrontend-revolution-module-federation-in-webpack-5/) about Module Federation in Webpack 5 and Micro-frontends.
+> In version 1.0.8 changed names of some variables:
+> - `IMfeModuleRootOptions` interface renamed to `NgxMfeOptions`;
+> - Property `delay` in the `NgxMfeOptions` renamed to `loaderDelay`;
+> - `OPTIONS` injection token renamed to `NGX_MFE_OPTIONS`;
+
+## Motivation
+
+With the advent of Webpack 5 and the ModuleFederationPlugin, it became possible to separately compiled and deployed code, like microservices on the Backend.
+
+The **ngx-mfe** is an extension of the functionality of the [@angular-architects/module-federation](https://www.npmjs.com/package/@angular-architects/module-federation). Using @angular-architects/module-federation you could only upload one micro-frontend per page (in the Routing), this limitation was the main reason for the creation of this library - **ngx-mfe**.
+
+The main feature of the **ngx-mfe** library is ability to work with micro-frontends directly in the HTML template using a plugin-based approach. You can load more than one micro-frontend per page.
+
+## Features
+
+🔥 Load multiple micro-frontends directly from the HTML template, with the ability to display the loader component during loading, and the fallback component on error.
+
+🔥 More convenient way to load MFE via Angular Routing.
+
+🔥 Configure different remoteEntryUrl of the MFE for different builds (dev/prod/etc.).
 
 ## Contents
 
