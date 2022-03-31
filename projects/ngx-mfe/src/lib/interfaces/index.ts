@@ -1,4 +1,4 @@
 export * from './loaded-mfe.interface';
 export * from './mfe-config.interface';
-export * from './mfe-module-root-options.interface';
+export * from './ngx-mfe-options.interface';
 

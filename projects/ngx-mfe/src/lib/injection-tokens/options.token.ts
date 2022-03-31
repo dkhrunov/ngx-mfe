@@ -3,4 +3,4 @@ import { InjectionToken } from '@angular/core';
 /**
  * InjectionToken of options.
  */
-export const OPTIONS = new InjectionToken<string>('@nx-mfe/client/mfe/OPTIONS');
+export const NGX_MFE_OPTIONS = new InjectionToken<string>('ngx-mfe/options');
