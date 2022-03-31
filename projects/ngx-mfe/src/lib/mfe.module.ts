@@ -2,8 +2,8 @@ import { loadRemoteEntry } from '@angular-architects/module-federation';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { MfeOutletDirective } from './directives';
 import { validateMfeString } from './helpers';
-import { OPTIONS } from './injection-tokens';
-import { IMfeModuleRootOptions } from './interfaces';
+import { NGX_MFE_OPTIONS } from './injection-tokens';
+import { NgxMfeOptions } from './interfaces';
 import { MfeRegistry } from './registry';
 
 /**
@@ -23,7 +23,7 @@ export class MfeModule {
 	 * Sets global configuration of Mfe lib.
 	 * @param options Object of options.
 	 */
-	public static forRoot(options: IMfeModuleRootOptions): ModuleWithProviders<MfeModule> {
+	public static forRoot(options: NgxMfeOptions): ModuleWithProviders<MfeModule> {
 		const mfeRegistry = MfeRegistry.getInstance(options.mfeConfig);
 		const loadMfeBundle = loadMfeBundleWithMfeRegistry(mfeRegistry);
 
@@ -42,7 +42,7 @@ export class MfeModule {
 					useValue: mfeRegistry,
 				},
 				{
-					provide: OPTIONS,
+					provide: NGX_MFE_OPTIONS,
 					useValue: options,
 				},
 			],

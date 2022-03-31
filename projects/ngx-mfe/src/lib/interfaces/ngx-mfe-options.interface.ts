@@ -3,7 +3,7 @@ import { IMfeConfig } from './mfe-config.interface';
 /**
  * Global options.
  */
-export interface IMfeModuleRootOptions {
+export interface NgxMfeOptions {
 	/**
 	 * Options for each micro-frontend app.
 	 */
@@ -14,12 +14,6 @@ export interface IMfeModuleRootOptions {
 	 */
 	preload?: string[];
 	/**
-	 * The delay between displaying the contents of the bootloader and the micro-frontend.
-	 *
-	 * This is to avoid flickering when the micro-frontend loads very quickly.
-	 */
-	delay?: number;
-	/**
 	 * Loader micro-frontend.
 	 *
 	 * Shows when load bundle of another micro-frontend.
@@ -27,6 +21,12 @@ export interface IMfeModuleRootOptions {
 	 * For better UX, add this micro-frontend to {@link preload} array.
 	 */
 	loader?: string;
+	/**
+	 * The delay between displaying the contents of the bootloader and the micro-frontend.
+	 *
+	 * This is to avoid flickering when the micro-frontend loads very quickly.
+	 */
+	loaderDelay?: number;
 	/**
 	 * Fallback micro-frontend.
 	 *
