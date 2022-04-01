@@ -15,13 +15,11 @@ import {
 	ViewContainerRef
 } from '@angular/core';
 import { EChangesStrategy, TrackChanges } from '../decorators';
-import { validateMfeString } from '../helpers';
+import { delay, validateMfeString } from '../helpers';
 import { NGX_MFE_OPTIONS } from '../injection-tokens';
 import { NgxMfeOptions } from '../interfaces';
 import { DynamicComponentBinding, MfeComponentsCache, MfeService } from '../services';
 import { MfeOutletInputs, MfeOutletOutputs } from '../types';
-
-const delay = <T>(time: number) => new Promise<T>((resolve) => setTimeout(resolve, time));
 
 /**
  * Micro-frontend directive for plugin-based approach.
@@ -247,11 +245,13 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 			// If some component already rendered then need to unbind outputs
 			if (this._mfeComponentFactory) this._binding.unbindOutputs();
 
-			if (!this._cache.isRegistered(this.mfe)) {
+			if (this._cache.isRegistered(this.mfe)) {
+				this._showMfe();
+			} else {
 				await this._showLoader();
+				await delay(this.loaderDelay);
+				this._showMfe();
 			}
-
-			await this._showMfe();
 		} catch (e) {
 			console.error(e);
 			await this._showFallback();
@@ -264,10 +264,10 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	 * @internal
 	 */
 	private async _showMfe(): Promise<void> {
-		const [_, componentFactory] = await Promise.all([
-			delay(this.loaderDelay),
-			this._mfeService.resolveComponentFactory(this.mfe, this.injector),
-		]);
+		const componentFactory = await this._mfeService.resolveComponentFactory(
+			this.mfe,
+			this.injector
+		);
 
 		this._clear();
 
