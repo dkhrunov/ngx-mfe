@@ -1,9 +1,10 @@
+import { Type } from '@angular/core';
 import { IMfeConfig } from './mfe-config.interface';
 
 /**
  * Global options.
  */
-export interface NgxMfeOptions {
+export interface NgxMfeOptions<TLoader = unknown, TFallback = unknown> {
 	/**
 	 * Options for each micro-frontend app.
 	 */
@@ -14,13 +15,15 @@ export interface NgxMfeOptions {
 	 */
 	preload?: string[];
 	/**
-	 * Loader micro-frontend.
+	 * Loader component.
+	 * 
+	 * Accepts an MFE string or Component class.
 	 *
-	 * Shows when load bundle of another micro-frontend.
+	 * Shows when load bundle of the micro-frontend.
 	 *
 	 * For better UX, add this micro-frontend to {@link preload} array.
 	 */
-	loader?: string;
+	loader?: string | Type<TLoader>;
 	/**
 	 * The delay between displaying the contents of the bootloader and the micro-frontend.
 	 *
@@ -28,12 +31,14 @@ export interface NgxMfeOptions {
 	 */
 	loaderDelay?: number;
 	/**
-	 * Fallback micro-frontend.
+	 * Fallback component.
+	 * 
+	 * Accepts an MFE string or Component class.
 	 *
 	 * Showing when an error occurs while loading bundle
-	 * or when trying to display the contents of another micro-frontend.
+	 * or when trying to display the contents of the micro-frontend.
 	 *
 	 * For better UX, add this micro-frontend to {@link preload} array.
 	 */
-	fallback?: string;
+	fallback?: string | Type<TFallback>;
 }

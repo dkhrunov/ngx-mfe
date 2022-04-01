@@ -11,6 +11,7 @@ import {
 	OnChanges,
 	OnDestroy,
 	TemplateRef,
+	Type,
 	ViewContainerRef
 } from '@angular/core';
 import { EChangesStrategy, TrackChanges } from '../decorators';
@@ -104,36 +105,37 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	public injector?: Injector = this._injector;
 
 	/**
-	 * TemplateRef or micro-frontend string this content shows
-	 * when loading and compiling micro-frontend component.
+	 * TemplateRef or MFE string or TemplateRef or Component class.
+	 * Displayed when loading the micro-frontend.
 	 *
 	 * **Overrides the loader specified in the global library settings.**
 	 *
 	 * @default options.loader
 	 */
 	@Input('mfeOutletLoader')
-	public loader?: TemplateRef<unknown> | string = this._options.loader;
+	public loader?: string | TemplateRef<unknown> | Type<unknown> = this._options.loader;
 
 	/**
-	 * The delay between displaying the contents of the bootloader and the micro-frontend .
-	 *
+	 * Specifies the minimum loader display time in ms.
 	 * This is to avoid flickering when the micro-frontend loads very quickly.
+	 * 
+	 * **Overrides the loaderDelay specified in the global library settings.**
 	 *
-	 * @default options.delay, if not set, then 0
+	 * @default options.loaderDelay
 	 */
 	@Input('mfeOutletLoaderDelay')
 	public loaderDelay = this._options.loaderDelay ?? 0;
 
 	/**
-	 * TemplateRef or micro-frontend string this content shows
-	 * when error occur in the loading and the compiling process micro-frontend component.
+	 * TemplateRef or MFE string or TemplateRef or Component class.
+	 * Displayed when loading or compiling a micro-frontend with an error.
 	 *
 	 * **Overrides fallback the specified in the global library settings.**
 	 *
 	 * @default options.fallback
 	 */
 	@Input('mfeOutletFallback')
-	public fallback?: TemplateRef<unknown> | string = this._options.fallback;
+	public fallback?: string | TemplateRef<unknown> | Type<unknown> = this._options.fallback;
 
 	private _mfeComponentFactory?: ComponentFactory<unknown>;
 	private _mfeComponentRef?: ComponentRef<unknown>;
@@ -152,7 +154,10 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	@TrackChanges('mfe', 'validateMfe', { compare: true })
 	@TrackChanges('loader', 'validateLoader', { compare: true })
 	@TrackChanges('fallback', 'validateFallback', { compare: true })
-	@TrackChanges('mfe', 'render', { strategy: EChangesStrategy.NonFirst })
+	@TrackChanges('mfe', 'render', {
+		compare: true,
+		strategy: EChangesStrategy.NonFirst
+	})
 	@TrackChanges('inputs', 'transferInputs', {
 		strategy: EChangesStrategy.NonFirst,
 		compare: true,
@@ -187,7 +192,7 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	 *
 	 * @internal
 	 */
-	protected validateLoader(value: TemplateRef<unknown> | string): void {
+	protected validateLoader(value: string | TemplateRef<unknown> | Type<unknown>): void {
 		if (typeof value === 'string') {
 			validateMfeString(value);
 		}
@@ -200,7 +205,7 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	 *
 	 * @internal
 	 */
-	protected validateFallback(value: TemplateRef<unknown> | string): void {
+	protected validateFallback(value: string | TemplateRef<unknown> | Type<unknown>): void {
 		if (typeof value === 'string') {
 			validateMfeString(value);
 		}
@@ -282,7 +287,7 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	 */
 	private async _showLoader(): Promise<void> {
 		if (this.loader) {
-			this._loaderComponentRef = await this._showTemplateRefOrMfe(this.loader);
+			this._loaderComponentRef = await this._displayComponent(this.loader);
 		}
 	}
 
@@ -293,43 +298,42 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	 */
 	private async _showFallback(): Promise<void> {
 		if (this.fallback) {
-			this._fallbackComponentRef = await this._showTemplateRefOrMfe(this.fallback);
+			this._fallbackComponentRef = await this._displayComponent(this.fallback);
 		}
 	}
 
 	/**
-	 * Shows TemlateRer or Mfe content
-	 * @param templateRefOrMfeString TemlateRef or MFE string
+	 * Shows MFE | TemlateRer | Component content
+	 * @param templateRefOrMfeString MFE string or TemlateRef or Component 
 	 */
-	private async _showTemplateRefOrMfe<TComponent = unknown, TModule = unknown>(
+	private async _displayComponent<TComponent = unknown, TModule = unknown>(
 		mfeString: string
 	): Promise<ComponentRef<TComponent>>;
-	private async _showTemplateRefOrMfe<TContext = unknown>(
+	private async _displayComponent<TContext = unknown>(
 		templateRef: TemplateRef<TContext>
 	): Promise<EmbeddedViewRef<TContext>>;
-	private async _showTemplateRefOrMfe<
+	private async _displayComponent<TComponent = unknown>(
+		component: Type<TComponent>
+	): Promise<ComponentRef<TComponent>>;
+	private async _displayComponent<
 		TComponent = unknown,
 		TModule = unknown,
 		TContext = unknown
 	>(
-		templateRefOrMfeString: TemplateRef<TContext> | string
+		content: string | TemplateRef<TContext> | Type<TComponent>
 	): Promise<EmbeddedViewRef<TContext> | ComponentRef<TComponent>>;
-	private async _showTemplateRefOrMfe<
+	private async _displayComponent<
 		TComponent = unknown,
 		TModule = unknown,
 		TContext = unknown
 	>(
-		templateRefOrMfeString: TemplateRef<TContext> | string
+		content: string | TemplateRef<TContext> | Type<TComponent>
 	): Promise<EmbeddedViewRef<TContext> | ComponentRef<TComponent>> {
 		this._clear();
 
-		if (templateRefOrMfeString instanceof TemplateRef) {
-			return this._vcr.createEmbeddedView(templateRefOrMfeString);
-		} else {
-			const componentFactory = await this._mfeService.resolveComponentFactory<
-				TModule,
-				TComponent
-			>(templateRefOrMfeString, this.injector);
+		// MFE
+		if (typeof content === 'string') {
+			const componentFactory = await this._mfeService.resolveComponentFactory<TModule, TComponent>(content, this.injector);
 			const componentRef = this._vcr.createComponent(
 				componentFactory,
 				undefined,
@@ -337,6 +341,14 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 			);
 			componentRef.changeDetectorRef.detectChanges();
 			return componentRef;
+		}
+		// TemplateRef
+		else if (content instanceof TemplateRef) {
+			return this._vcr.createEmbeddedView(content);
+		}
+		// Component
+		else {
+			return this._vcr.createComponent(content);
 		}
 	}
 
@@ -348,7 +360,7 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	private _bindMfeData(): void {
 		if (!this._mfeComponentRef || !this._mfeComponentFactory) {
 			throw new Error(
-				`_initDataBound method must be called after micro-frontend component "${this.mfe}" has been initialized.`
+				`_bindMfeData method must be called after micro-frontend component "${this.mfe}" has been initialized.`
 			);
 		}
 

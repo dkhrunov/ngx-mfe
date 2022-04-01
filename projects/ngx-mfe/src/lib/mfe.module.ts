@@ -27,8 +27,8 @@ export class MfeModule {
 		const mfeRegistry = MfeRegistry.getInstance(options.mfeConfig);
 		const loadMfeBundle = loadMfeBundleWithMfeRegistry(mfeRegistry);
 
-		if (options.loader) validateMfeString(options.loader);
-		if (options.fallback) validateMfeString(options.fallback);
+		if (typeof options.loader === 'string') validateMfeString(options.loader);
+		if (typeof options.fallback === 'string') validateMfeString(options.fallback);
 
 		if (options.preload) {
 			options.preload.map((mfe) => loadMfeBundle(mfe));

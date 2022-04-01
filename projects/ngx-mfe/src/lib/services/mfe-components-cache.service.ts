@@ -5,7 +5,8 @@ import { AsyncSubject } from 'rxjs';
  * Cache of the loaded micro-frontend apps.
  *
  * Main reason to create cache is to avoid race conditions
- * when two micro-frontends are requested at the same time. This error arose in MfeOutletDirective.
+ * when two micro-frontends are requested at the same time.
+ * This error arose in MfeOutletDirective.
  */
 @Injectable({
 	providedIn: 'root',

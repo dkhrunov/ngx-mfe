@@ -65,8 +65,8 @@ export function TrackChanges<T>(
 		descriptor.value = function (changes: SimpleChanges): void {
 			if (changes && changes[prop] && changes[prop].currentValue !== undefined) {
 				const isFirstChange = changes[prop].firstChange;
-				const isDifference = changes[prop].previousValue !== changes[prop].currentValue;
 				const shouldCompareValues = _options.compare;
+				const isValuesDifference = changes[prop].previousValue !== changes[prop].currentValue;
 
 				if (
 					_options.strategy === EChangesStrategy.Each ||
@@ -75,7 +75,7 @@ export function TrackChanges<T>(
 				) {
 					if (!shouldCompareValues) {
 						target[methodName].call(this, changes[prop].currentValue as T);
-					} else if (isDifference) {
+					} else if (isValuesDifference) {
 						target[methodName].call(this, changes[prop].currentValue as T);
 					}
 				}

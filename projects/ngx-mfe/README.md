@@ -45,13 +45,29 @@ The main feature of the **ngx-mfe** library is ability to work with micro-fronte
 
 ## Conventions
 
-1. Micro-frontend string or MFE string - string is kebab-case style string notation and matches this pattern `"mfe-app/exposed-file-name"`, where:
-	- `mfe-app` - this is the micro-frontend name specified in the property name in the `ModuleFederationPlugin`.
-	- `exposed-file-name` - it is the exposed file name specified in the object exposes  in the `ModuleFederationPlugin`.
+1. Micro-frontend string or MFE string - string is kebab-case style and matches this pattern `"mfe-app/exposed-file-name"`, where:
+	- `mfe-app` - this is the micro-frontend name specified in the property `name` in the `ModuleFederationPlugin`.
+	- `exposed-file-name` - it is the exposed file name specified in the object `exposes`  in the `ModuleFederationPlugin`.
 
-	This string is used in the `LoadMfeModule(mfeString)`, `LoadMfeComponent(mfeString)`, `MfeOutletDirective` and in the `MfeService`.
+	> **Note:** The `exposed-file-name` must not contain the suffix "Module" or "Component".
+
+	**Example:** For an `address-form` MFE with an exposed `FormModule` file, the MFE string must be `"address-form/form"`.
+
+	```js
+	// webpack.config.js file
+	new ModuleFederationPlugin({
+		name: "address-form",
+		filename: "remoteEntry.js",
+		exposes: {
+			FormModule: 'apps/address-form/src/app/form/form.module.ts',
+		},
+		[...]
+	});
+	```
 
 2. The key of the exposed file from the `ModuleFederationPlugin` must match the name of the exported class from that file.
+
+	In the example below the `'HomeModule'` must match to exported module from `apps/login/src/app/home/home.module.ts` file:
 
 ```js
 // webpack.config.js file
@@ -87,7 +103,14 @@ import { HomeComponent } from './home.component';
 export class HomeModule {}
 ```
 
-3. If you use plugin-based approach with `MfeOutletDirective` then you should expose from `ModuleFederationPlugin` both the Component and the Module in which this Component is declared. Example:
+3. If you use plugin-based approach with `MfeOutletDirective` then you should expose from `ModuleFederationPlugin` both the Component and the Module in which this Component is declared. Also, the name of the module and component must match up to the suffix `Module` or `Component`.
+
+	![Example of naming image](https://cdn-images-1.medium.com/max/800/1*CWnbD68KiSkIxBF6iK_5KA.png)
+	
+	The name that must match is in red and the suffix is ​​in green.
+
+	Example:
+	
 
 ```js
 new ModuleFederationPlugin({
@@ -108,7 +131,7 @@ new ModuleFederationPlugin({
 
 > For feature modules just import `MfeModule`
 
-Add the ngx-mfe library to a shared property in the ModuleFederationPlugin inside webpack.config.js file for each application in your workspace.
+Add the **ngx-mfe** library to a shared property in the ModuleFederationPlugin inside webpack.config.js file for each application in your workspace.
 
 ```typescript
 module.exports = {
@@ -138,7 +161,9 @@ module.exports = {
 ```
 
 
-To configure this library, you should import `MfeModule.forRoot(options: NgxMfeOptions)` to the root module of the Host app(s), and to the root module of the Remote app(s) if you load MFE inside another MFE:
+To configure this library, you should import `MfeModule.forRoot(options: NgxMfeOptions)` to the root module of the Host app(s) and to the root module of the Remote app(s), so that Remote works properly when working as a standalone app:
+
+> For feature modules just import `MfeModule` without options, where, you may need the functionality of the library, for example, the `MfeOutletDirective` directive.
 
 ```typescript
 @NgModule({
@@ -161,7 +186,7 @@ export class AppModule {}
 
 List of all available options:
 
--   **mfeConfig** - object where **key** is micro-frontend app name specified in `ModuleFederationPlugin` (webpack.config.js) and **value** is remoteEntryUrl string. All data will be sets to `MfeRegistry`.
+-   **mfeConfig** - object where **key** is micro-frontend app name specified in `ModuleFederationPlugin` (webpack.config.js) and **value** is remoteEntryUrl string. All data will be sets to [MfeRegistry](https://github.com/dkhrunov/ngx-mfe/blob/development/projects/ngx-mfe/src/lib/registry/mfe-registry.ts).
 
 	*Key* it's the name same specified in webpack.config.js of MFE (Remote) in option name in `ModuleFederationPlugin`. 
 
@@ -189,13 +214,21 @@ List of all available options:
 -   **preload** (Optional) - a list of micro-frontend names, their bundles (remoteEntry.js) will be loaded and saved in the cache when the application starts.
 
 Next options are only works in plugin-based approach with `MfeOutletDirective`:
--   **loader** (Optional) - Displayed when loading bundle of micro-frontend. Indicated as a micro-frontend string _example: 'loader-mfe/spinner'._
+-   **loaderDelay** (Optional) - Specifies the minimum loader display time in ms. This is to avoid flickering when the micro-frontend loads very quickly.
 
--   **loaderDelay** (Optional) - The delay between displaying the contents of the bootloader and the micro-frontend. This is to avoid flickering when the micro-frontend loads very quickly. _By default 0._
+	_By default is 0._
 
--   **fallback** (Optional) - Displayed when micro-frontend component loaded with error. Indicated as a micro-frontend string _example: 'fallback-mfe/not-found'._
+-   **loader** (Optional) - Displayed when loading the micro-frontend. Specified as a MFE string or Component class.
+	
+	_Example: 'loader-mfe/spinner'._
 
-    > For better UX, add loader and fallback micro-frontends to [preload]() array.
+	> For better UX, add loader micro-frontends to the `preload`.
+
+-   **fallback** (Optional) - Displayed when loading or compiling a micro-frontend with an error. Specified as a MFE string or Component class.
+
+	_Example: 'fallback-mfe/not-found'._
+
+    > For better UX, add fallback micro-frontends to the `preload`.
 
 You can get all configured options by injecting NGX_MFE_OPTIONS by DI:
 
@@ -235,7 +268,7 @@ This approach allows us to load micro-frontends directly from HTML.
 
 The advantages of this approach are that we can display several MFEs at once on the same page, even display several of the same MFEs.
 
-> More about plugin-based approach [here](https://www.angulararchitects.io/en/aktuelles/dynamic-module-federation-with-angular-2/)
+> More about plugin-based approach [here](https://dekh.medium.com/angular-micro-frontend-architecture-part-3-3-mfe-plugin-based-approach-f36dc9849b0)
 
 **Notice 1**: for correct work with the plugin-based approach, you must always expose both the Component and the Module in which this Component is declared.
 
