@@ -1,6 +1,6 @@
 /**
  * MFE app options.
  */
-export interface IMfeConfig {
+export interface MfeConfig {
 	[mfeName: string]: string;
 }
