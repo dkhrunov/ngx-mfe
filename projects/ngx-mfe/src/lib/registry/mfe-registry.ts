@@ -1,20 +1,20 @@
-import { IMfeConfig } from '../interfaces';
+import { MfeConfig } from '../interfaces';
 
 /**
  * Registry of micro-frontends apps.
  */
 export class MfeRegistry {
 	private static _instance: MfeRegistry;
-	private readonly _mfeConfig: IMfeConfig;
+	private readonly _mfeConfig: MfeConfig;
 
-	private constructor(mfeConfig: IMfeConfig) {
+	private constructor(mfeConfig: MfeConfig) {
 		this._mfeConfig = mfeConfig;
 	}
 
 	/**
 	 * Get instance of the MfeRegistry
 	 */
-	public static getInstance(mfeConfig?: IMfeConfig): MfeRegistry {
+	public static getInstance(mfeConfig?: MfeConfig): MfeRegistry {
 		if (!MfeRegistry._instance) {
 			if (!mfeConfig)
 				throw new Error(

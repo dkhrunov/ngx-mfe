@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { IMfeConfig } from './mfe-config.interface';
+import { MfeConfig } from './mfe-config.interface';
 
 /**
  * Global options.
@@ -8,7 +8,7 @@ export interface NgxMfeOptions<TLoader = unknown, TFallback = unknown> {
 	/**
 	 * Options for each micro-frontend app.
 	 */
-	mfeConfig: IMfeConfig;
+	mfeConfig: MfeConfig;
 	/**
 	 * List of micro-fronts, bundles of the specified micro-fronts
 	 * will be loaded immediately and saved in the cache.
