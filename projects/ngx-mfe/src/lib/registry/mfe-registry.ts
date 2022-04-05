@@ -32,6 +32,12 @@ export class MfeRegistry {
 	 * @param mfeApp Micro-frontend app name
 	 */
 	public getMfeRemoteEntry(mfeApp: string): string {
-		return this._mfeConfig[mfeApp];
+		const remoteEntry = this._mfeConfig[mfeApp];
+
+		if (!remoteEntry) {
+			throw new Error(`'${mfeApp}' micro-frontend is not registered in the MfeRegistery using MfeModule.forRoot({ mfeConfig })`);
+		}
+
+		return remoteEntry;
 	}
 }

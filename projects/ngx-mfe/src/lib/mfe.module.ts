@@ -58,8 +58,8 @@ export class MfeModule {
  * @param mfeRegistry Registry of micro-frontends apps.
  */
 function loadMfeBundleWithMfeRegistry(mfeRegistry: MfeRegistry): (mfe: string) => Promise<void> {
-	return (mfe: string): Promise<void> => {
-		const remoteEntry = mfeRegistry.getMfeRemoteEntry(mfe);
+	return (mfeString: string): Promise<void> => {
+		const remoteEntry = mfeRegistry.getMfeRemoteEntry(mfeString);
 
 		return loadRemoteEntry({ type: 'module', remoteEntry});
 	};

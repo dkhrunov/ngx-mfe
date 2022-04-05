@@ -238,9 +238,9 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 				await delay(this.loaderDelay);
 				this._showMfe();
 			}
-		} catch (e) {
-			console.error(e);
-			await this._showFallback();
+		} catch (error) {
+			console.error(error);
+			this._showFallback();
 		}
 	}
 
@@ -249,10 +249,15 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	 *
 	 * @internal
 	 */
-	 private async _showMfe(): Promise<void> {
-		if (this.mfe) {
-			this._mfeComponentRef = await this._displayComponent(this.mfe, true, this.options);
-			this._bindMfeData();
+	private async _showMfe(): Promise<void> {
+		try {
+			if (this.mfe) {
+				this._mfeComponentRef = await this._displayComponent(this.mfe, true, this.options);
+				this._bindMfeData();
+			}
+		} catch (error) {
+			console.error(error);
+			this._showFallback();
 		}
 	}
 
@@ -262,8 +267,13 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	 * @internal
 	 */
 	private async _showLoader(): Promise<void> {
-		if (this.loader) {
-			this._loaderComponentRef = await this._displayComponent(this.loader);
+		try {
+			if (this.loader) {
+				this._loaderComponentRef = await this._displayComponent(this.loader);
+			}
+		} catch (error) {
+			console.error(error);
+			this._showFallback();
 		}
 	}
 

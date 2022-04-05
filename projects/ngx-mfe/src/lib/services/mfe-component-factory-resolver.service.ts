@@ -27,8 +27,8 @@ export class MfeComponentFactoryResolver {
 
 	/**
 	 * Resolve the micro-frontend component factory.
-	 * @param mfeString Micro-frontend string
-	 * @param injector Custom injector, by default sets current injector.
+	 * @param mfeString micro-frontend string
+	 * @param injector custom injector, by default sets current injector.
 	 * @param options (Optional) list of options.
 	 */
 	public async resolveComponentFactory<TModule = unknown, TComponent = unknown>(
@@ -70,10 +70,17 @@ export class MfeComponentFactoryResolver {
 				this._cache.setError(mfeString, error);
 			}
 
-			throw new Error(error as string);
+			throw error;
 		}
 	}
 
+	/**
+	 * Loads MFE module 
+	 * @param mfeString MFE string.
+	 * @param options options for `loadMfe` helper function.
+	 * 
+	 * @internal 
+	 */
 	private async _loadMfeModule<TModule = unknown>(
 		mfeString: string,
 		options: LoadMfeOptions = { type: 'module' }
@@ -82,12 +89,24 @@ export class MfeComponentFactoryResolver {
 		return await loadMfe<TModule>(mfeString, { moduleName, type });
 	}
 
+	/**
+	 * Compiles MFE module with declared in this module components.
+	 * @param moduleType Module class type.
+	 * 
+	 * @internal 
+	 */
 	private async _compileModuleWithComponents<TModule = unknown>(
 		moduleType: Type<TModule>
 	): Promise<ModuleWithComponentFactories<TModule>> {
 		return await this._compiler.compileModuleAndAllComponentsAsync(moduleType);
 	}
 
+	/**
+	 * Generates Component class name from MFE string.
+	 * @param mfeString MFE string.
+	 * 
+	 * @internal 
+	 */
 	public _getComponentName(mfeString: string): string {
 		return mfeString
 			.split('/')[1]
@@ -97,6 +116,13 @@ export class MfeComponentFactoryResolver {
 			.concat('Component');
 	}
 
+	/**
+	 * Find Component class by componentName.
+	 * @param componentName a custom Component name.
+	 * @param compiledModule compiled module instance.
+	 * 
+	 * @internal 
+	 */
 	public _findComponentType<TModule = unknown, TComponent = unknown>(
 		componentName: string,
 		compiledModule: ModuleWithComponentFactories<TModule>
