@@ -18,7 +18,7 @@ import { EChangesStrategy, TrackChanges } from '../decorators';
 import { delay, validateMfeString } from '../helpers';
 import { NGX_MFE_OPTIONS } from '../injection-tokens';
 import { NgxMfeOptions } from '../interfaces';
-import { DynamicComponentBinding, MfeComponentsCache, MfeService } from '../services';
+import { DynamicComponentBinding, MfeComponentFactoryResolver, MfeComponentFactoryResolverOptions, MfeComponentsCache } from '../services';
 import { MfeOutletInputs, MfeOutletOutputs } from '../types';
 
 type CreationElement = string | TemplateRef<unknown> | Type<unknown>;
@@ -139,6 +139,12 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	@Input('mfeOutletFallback')
 	public fallback?: CreationElement = this._options.fallback;
 
+	/**
+	 * Custom options for MfeComponentFactoryResolver.
+	 */
+	@Input('mfeOutletOptions')
+	public options?: MfeComponentFactoryResolverOptions;
+
 	private _mfeComponentFactory?: ComponentFactory<unknown>;
 	private _mfeComponentRef?: ComponentRef<unknown>;
 	private _loaderComponentRef?: ComponentRef<unknown> | EmbeddedViewRef<unknown>;
@@ -148,7 +154,7 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 		private readonly _vcr: ViewContainerRef,
 		private readonly _injector: Injector,
 		private readonly _cache: MfeComponentsCache,
-		private readonly _mfeService: MfeService,
+		private readonly _mcfr: MfeComponentFactoryResolver,
 		private readonly _binding: DynamicComponentBinding,
 		@Inject(NGX_MFE_OPTIONS) private readonly _options: NgxMfeOptions
 	) {}
@@ -243,21 +249,11 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	 *
 	 * @internal
 	 */
-	private async _showMfe(): Promise<void> {
-		const componentFactory = await this._mfeService.resolveComponentFactory(
-			this.mfe,
-			this.injector
-		);
-
-		this._clearView();
-
-		const componentRef = this._vcr.createComponent(componentFactory, undefined, this.injector);
-		componentRef.changeDetectorRef.detectChanges();
-
-		this._mfeComponentFactory = componentFactory;
-		this._mfeComponentRef = componentRef;
-
-		this._bindMfeData();
+	 private async _showMfe(): Promise<void> {
+		if (this.mfe) {
+			this._mfeComponentRef = await this._displayComponent(this.mfe, true, this.options);
+			this._bindMfeData();
+		}
 	}
 
 	/**
@@ -283,11 +279,18 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	}
 
 	/**
-	 * Shows MFE | TemlateRer | Component content
-	 * @param templateRefOrMfeString MFE string or TemlateRef or Component 
+	 * Shows MFE | TemlateRer | Component content.
+	 *
+	 * @param templateRefOrMfeString MFE string or TemlateRef or Component.
+	 * @param saveComponentFactory If true saves componentFactory to this._mfeComponentFactory property.
+	 * @param options Custom options for MfeComponentFactoryResolver.
+	 *
+	 * @internal
 	 */
-	 private async _displayComponent<TComponent = unknown, TModule = unknown>(
-		mfeString: string
+	private async _displayComponent<TComponent = unknown>(
+		mfeString: string,
+		saveComponentFactory?: boolean,
+		options?: MfeComponentFactoryResolverOptions
 	): Promise<ComponentRef<TComponent>>;
 	private async _displayComponent<TContext = unknown>(
 		templateRef: TemplateRef<TContext>
@@ -295,16 +298,28 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 	private async _displayComponent<TComponent = unknown>(
 		component: Type<TComponent>
 	): Promise<ComponentRef<TComponent>>;
-	private async _displayComponent<TComponent = unknown, TModule = unknown>(
-		content: CreationElement
+	private async _displayComponent<TComponent = unknown>(
+		content: CreationElement,
+		saveComponentFactory?: boolean,
+		options?: MfeComponentFactoryResolverOptions
 	): Promise<CreatedElementRef>;
-	private async _displayComponent<TComponent = unknown, TModule = unknown>(
-		content: CreationElement
+	private async _displayComponent<TComponent = unknown>(
+		content: CreationElement,
+		saveComponentFactory: boolean = false,
+		options?: MfeComponentFactoryResolverOptions
 	): Promise<CreatedElementRef> {
 		// MFE
 		if (typeof content === 'string') {
-			const componentFactory = await this._mfeService.resolveComponentFactory<TModule, TComponent>(content, this.injector);
-			
+			const componentFactory = await this._mcfr.resolveComponentFactory<TComponent>(
+				content,
+				this.injector,
+				options
+			);
+
+			if (saveComponentFactory) {
+				this._mfeComponentFactory = componentFactory;
+			}
+
 			this._clearView();
 
 			const componentRef = this._vcr.createComponent(
@@ -325,7 +340,7 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
 		else {
 			this._clearView();
 
-			return this._vcr.createComponent(content);
+			return this._vcr.createComponent(content, { injector: this.injector });
 		}
 	}
 
