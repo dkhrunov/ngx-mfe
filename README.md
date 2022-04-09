@@ -18,7 +18,7 @@ If you are using Angular v12 and @angular-architects/module-federation v12.2.0 y
 - Added new Input prop to the `MfeOutletDirective` - `options: MfeComponentFactoryResolver`, this parameter provided to `resolveComponentFactory` method of the `MfeComponentFactoryResolver` when resolving the component factory of MFE.
 - Since **v1.1.0** you don't need to expose from `ModuleFederationPlugin` for plugin-based approach both Module and Component, just specify the Module file.
 
-	The exposed Module key must match the name of the public module without the 'Module' suffix. Also, if the name doesn't match, you can specify a custom Module name in the options `{ moduleName: 'CustomName' }` in the property `mfeOutletOptions` inside `MfeOutletDirective` and in the options parameter of the `loadMfeModule` helper function.
+	The exposed Module key must match the name of the exposed module without the 'Module' suffix. Also, if the name doesn't match, you can specify a custom Module name in the options `{ moduleName: 'CustomName' }` in the property `mfeOutletOptions` inside `MfeOutletDirective` and in the options parameter of the `loadMfeModule` helper function.
 
 	For the plugin-based approach, when loads MFE using `MfeOutletDirective` you must declare Component in the exposed Module and the Component name must match the exposed Module key without suffix 'Component'. Also, if the name doesn't match, you can specify a custom Component name in the Input property `mfeOutletOptions = { componentName: 'CustomName' }`;
 
