@@ -17,6 +17,8 @@ export type LoadMfeOptions = {
 	type?: LoadRemoteModuleOptions['type'],
 };
 
+export const loadMfeDefaultOptions: LoadMfeOptions = { type: 'module' };
+
 /**
  * Loads exposed module of the micro-frontend.
  *
@@ -26,7 +28,7 @@ export type LoadMfeOptions = {
  */
 export async function loadMfe<T = unknown>(
 	mfeString: string,
-	options: LoadMfeOptions = { type: 'module' }
+	options: LoadMfeOptions = loadMfeDefaultOptions
 ): Promise<Type<T>> {
 	validateMfeString(mfeString);
 
@@ -35,7 +37,8 @@ export async function loadMfe<T = unknown>(
 	if (!exposedItem) {
 		throw new Error('Can`t loads micro-frontend because exposed item is undefined');
 	}
-
+	
+	const _options: LoadMfeOptions = { ...loadMfeDefaultOptions, ...options };
 	const remoteEntry = MfeRegistry.getInstance().getMfeRemoteEntry(appName);
 	const exposedModule = exposedItem
 		.split('-')
@@ -43,12 +46,12 @@ export async function loadMfe<T = unknown>(
 		.join('');
 
 	const loadRemoteModuleOptions: LoadRemoteModuleOptions =
-		options.type === 'module'
-			? { type: options.type, remoteEntry, exposedModule }
-			: { type: options.type, remoteEntry, exposedModule, remoteName: appName };
+		_options.type === 'module'
+			? { type: _options.type, remoteEntry, exposedModule }
+			: { type: _options.type, remoteEntry, exposedModule, remoteName: appName };
 
 	const bundle = await loadRemoteModule(loadRemoteModuleOptions);
-	const _moduleName = options.moduleName ?? loadRemoteModuleOptions.exposedModule + 'Module';
+	const _moduleName = _options.moduleName ?? loadRemoteModuleOptions.exposedModule + 'Module';
 
 	return bundle[_moduleName];
 }

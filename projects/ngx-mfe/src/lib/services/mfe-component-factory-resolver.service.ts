@@ -1,6 +1,6 @@
 import { Compiler, ComponentFactory, Injectable, Injector, ModuleWithComponentFactories, Type } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
-import { loadMfe, LoadMfeOptions, validateMfeString } from '../helpers';
+import { loadMfe, loadMfeDefaultOptions, LoadMfeOptions, validateMfeString } from '../helpers';
 import { MfeComponentsCache } from './mfe-components-cache.service';
 
 export type MfeComponentFactoryResolverOptions = {
@@ -10,6 +10,8 @@ export type MfeComponentFactoryResolverOptions = {
 	 */
 	componentName?: string;
 } & LoadMfeOptions;
+
+const resolveComponentFactoryDefaultOptions: MfeComponentFactoryResolverOptions = { type: 'module' };
 
 /**
  * A low-level service for loading a micro-frontend module and a component,
@@ -34,7 +36,7 @@ export class MfeComponentFactoryResolver {
 	public async resolveComponentFactory<TModule = unknown, TComponent = unknown>(
 		mfeString: string,
 		injector: Injector = this._injector,
-		options: MfeComponentFactoryResolverOptions = { type: 'module' }
+		options: MfeComponentFactoryResolverOptions = resolveComponentFactoryDefaultOptions
 	): Promise<ComponentFactory<TComponent>> {
 		try {
 			validateMfeString(mfeString);
@@ -44,11 +46,12 @@ export class MfeComponentFactoryResolver {
 			}
 
 			this._cache.register(mfeString);
-
-			const moduleType = await this._loadMfeModule<TModule>(mfeString, options);
+			
+			const _options: MfeComponentFactoryResolverOptions = { ...resolveComponentFactoryDefaultOptions, ...options };
+			const moduleType = await this._loadMfeModule<TModule>(mfeString, _options);
 			const compiledModule = await this._compileModuleWithComponents<TModule>(moduleType);
 
-			const componentName = options.componentName ?? this._getComponentName(mfeString);
+			const componentName = _options.componentName ?? this._getComponentName(mfeString);
 			const componentType = this._findComponentType<TModule, TComponent>(
 				componentName,
 				compiledModule
@@ -83,10 +86,9 @@ export class MfeComponentFactoryResolver {
 	 */
 	private async _loadMfeModule<TModule = unknown>(
 		mfeString: string,
-		options: LoadMfeOptions = { type: 'module' }
+		options: LoadMfeOptions = loadMfeDefaultOptions
 	): Promise<Type<TModule>> {
-		const { moduleName, type } = options;
-		return await loadMfe<TModule>(mfeString, { moduleName, type });
+		return await loadMfe<TModule>(mfeString, { ...loadMfeDefaultOptions, ...options });
 	}
 
 	/**
