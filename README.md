@@ -269,7 +269,10 @@ return {
 		new ModuleFederationPlugin({
 			name: 'dashboard-mfe',
 			exposes: {
-				EntryModule: 'apps/dashboard-mfe/src/app/remote-entry/entry.module.ts'
+				EntryModule: 'apps/dashboard-mfe/src/app/remote-entry/entry.module.ts',
+        // Prior to version 1.1.0, you must expose the Component declared in this Module.
+        // uncomment next line if using ngx-mfe below version in 1.1.0
+				// EntryComponent: 'apps/dashboard-mfe/src/app/remote-entry/entry.component.ts',
 			},
 			filename: 'remoteEntry',
 			shared: share({ ... }),
