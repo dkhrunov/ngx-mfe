@@ -2,40 +2,17 @@
 
 A library for working with MFE in Angular in a plugin-based approach and a routing-based approach.
 
-## Changelog
+> This library depends on [@angular-architects/module-federation v14](https://www.npmjs.com/package/@angular-architects/module-federation) and Angular v13
 
-This library depends on [@angular-architects/module-federation v14](https://www.npmjs.com/package/@angular-architects/module-federation) and Angular v13
-
-If you are using Angular v12 and @angular-architects/module-federation v12.2.0 you should use this [library v1.0.2](https://github.com/dkhrunov/ngx-mfe/tree/1.0.2).
-
-### Changes in v1.1.0:
-
-- Deleted the `loadMfeComponent` helper function;
-- Deleted the `parseMfeString` helper function;
-- Renamed the `loadMfeModule` helper function to `loadMfe` and added optional parameter `options: LoadMfeOptions`. `LoadMfeOptions` has property a `moduleName`, that sets a custom name for the Module class within the opened file, and has `type` that specify type of Module Federation;
-- Renamed the `MfeService` to `MfeComponentFactoryResolver`;
-- `MfeComponentFactoryResolver` has the same method as `MfeService`, but now it can accepts an optional `options: MfeComponentFactoryResolver` parameter. This parameter extends `LoadMfeOptions` type, added a `componentName` parameter, that sets a custom name for the Component class.
-- Added new Input prop to the `MfeOutletDirective` - `options: MfeComponentFactoryResolver`, this parameter provided to `resolveComponentFactory` method of the `MfeComponentFactoryResolver` when resolving the component factory of MFE.
-- Since **v1.1.0** you don't need to expose from `ModuleFederationPlugin` for plugin-based approach both Module and Component, just specify the Module file.
-
-	The exposed Module key must match the name of the exposed module without the 'Module' suffix. Also, if the name doesn't match, you can specify a custom Module name in the options `{ moduleName: 'CustomName' }` in the property `mfeOutletOptions` inside `MfeOutletDirective` and in the options parameter of the `loadMfe` helper function.
-
-	For the plugin-based approach, when loads MFE using `MfeOutletDirective` you must declare Component in the exposed Module and the Component name must match the exposed Module key without suffix 'Component'. Also, if the name doesn't match, you can specify a custom Component name in the Input property `mfeOutletOptions = { componentName: 'CustomName' }`;
-
-
-### Changes in v1.0.8:
-
-- `IMfeModuleRootOptions` interface renamed to `NgxMfeOptions`;
-- Property `delay` in the `NgxMfeOptions` renamed to `loaderDelay`;
-- `OPTIONS` injection token renamed to `NGX_MFE_OPTIONS`;
+> If you are using Angular v12 and @angular-architects/module-federation v12.2.0 you should use this [library v1.0.2](https://github.com/dkhrunov/ngx-mfe/tree/1.0.2).
 
 ## Motivation
 
-With the advent of Webpack 5 and the ModuleFederationPlugin, it became possible to separately compiled and deployed code, like microservices on the Backend.
+When Webpack 5 came along and the Module Federation plugin, it became possible to separately compile and deploy code for front-end applications, thereby breaking up a monolithic front-end application into separate and independent **M**icro**F**ront**E**nd (MFE) applications.
 
 The **ngx-mfe** is an extension of the functionality of the [@angular-architects/module-federation](https://www.npmjs.com/package/@angular-architects/module-federation). Using @angular-architects/module-federation you could only upload one micro-frontend per page (in the Routing), this limitation was the main reason for the creation of this library - **ngx-mfe**.
 
-The main feature of the **ngx-mfe** library is ability to work with micro-frontends directly in the HTML template using a plugin-based approach. You can load more than one micro-frontend per page.
+The key feature of the **ngx-mfe** library is ability to work with micro-frontends directly in the HTML template using a plugin-based approach. You can load more than one micro-frontend per page.
 
 ## Features
 
@@ -45,7 +22,7 @@ The main feature of the **ngx-mfe** library is ability to work with micro-fronte
 
 🔥 Configure different remoteEntryUrl of the MFE for different builds (dev/prod/etc.).
 
-## Example
+## Example app
 
 - [Here you can find an example application using Micro-frontend architecture.](https://github.com/dkhrunov/ngx-mfe-test)
 - [Here you can find a series of articles about Micro-frontends/Module Federation and a step-by-step guide to building an application with Micro-frontends.](https://dekh.medium.com/angular-micro-frontend-architecture-part-1-3-the-concept-of-micro-frontend-architecture-2ff56a5ac264)
@@ -56,6 +33,7 @@ The main feature of the **ngx-mfe** library is ability to work with micro-fronte
 - [Configuring](#configuring)
 - [Load MFE by Route](#load-mfe-by-route)
 - [Load MFE in HTML template / plugin-based approach](#load-mfe-in-html-template--plugin-based-approach)
+- [Changelog](#changelog)
 
 ## Conventions
 
@@ -270,8 +248,8 @@ return {
 			name: 'dashboard-mfe',
 			exposes: {
 				EntryModule: 'apps/dashboard-mfe/src/app/remote-entry/entry.module.ts',
-        // Prior to version 1.1.0, you must expose the Component declared in this Module.
-        // uncomment next line if using ngx-mfe below version in 1.1.0
+				// Prior to version 1.1.0, you must expose the Component declared in this Module.
+				// uncomment next line if using ngx-mfe below version in 1.1.0
 				// EntryComponent: 'apps/dashboard-mfe/src/app/remote-entry/entry.component.ts',
 			},
 			filename: 'remoteEntry',
@@ -360,3 +338,26 @@ This architectural approach use `MfeOutletDirective`.
 	```html
 	<ng-container *mfeOutlet="'address-form/form'; injector: customInjector"></ng-container>
 	```
+
+## Changelog
+
+### Changes in v1.1.0:
+
+- Deleted the `loadMfeComponent` helper function;
+- Deleted the `parseMfeString` helper function;
+- Renamed the `loadMfeModule` helper function to `loadMfe` and added optional parameter `options: LoadMfeOptions`. `LoadMfeOptions` has property a `moduleName`, that sets a custom name for the Module class within the opened file, and has `type` that specify type of Module Federation;
+- Renamed the `MfeService` to `MfeComponentFactoryResolver`;
+- `MfeComponentFactoryResolver` has the same method as `MfeService`, but now it can accepts an optional `options: MfeComponentFactoryResolver` parameter. This parameter extends `LoadMfeOptions` type, added a `componentName` parameter, that sets a custom name for the Component class.
+- Added new Input prop to the `MfeOutletDirective` - `options: MfeComponentFactoryResolver`, this parameter provided to `resolveComponentFactory` method of the `MfeComponentFactoryResolver` when resolving the component factory of MFE.
+- Since **v1.1.0** you don't need to expose from `ModuleFederationPlugin` for plugin-based approach both Module and Component, just specify the Module file.
+
+	The exposed Module key must match the name of the exposed module without the 'Module' suffix. Also, if the name doesn't match, you can specify a custom Module name in the options `{ moduleName: 'CustomName' }` in the property `mfeOutletOptions` inside `MfeOutletDirective` and in the options parameter of the `loadMfe` helper function.
+
+	For the plugin-based approach, when loads MFE using `MfeOutletDirective` you must declare Component in the exposed Module and the Component name must match the exposed Module key without suffix 'Component'. Also, if the name doesn't match, you can specify a custom Component name in the Input property `mfeOutletOptions = { componentName: 'CustomName' }`;
+
+
+### Changes in v1.0.8:
+
+- `IMfeModuleRootOptions` interface renamed to `NgxMfeOptions`;
+- Property `delay` in the `NgxMfeOptions` renamed to `loaderDelay`;
+- `OPTIONS` injection token renamed to `NGX_MFE_OPTIONS`;
