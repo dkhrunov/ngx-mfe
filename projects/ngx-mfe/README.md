@@ -249,11 +249,13 @@ This approach allows us to load micro-frontends directly from HTML.
 
 The advantages of this approach are that we can display several MFEs at once on the same page, even display several of the same MFEs.
 
-> More about plugin-based approach [here](https://dekh.medium.com/angular-micro-frontend-architecture-part-3-3-mfe-plugin-based-approach-f36dc9849b0)
+More about plugin-based approach [here](https://dekh.medium.com/angular-micro-frontend-architecture-part-3-3-mfe-plugin-based-approach-f36dc9849b0).
 
-**Notice 1**: for correct work with the plugin-based approach, you must always expose both the Component and the Module in which this Component is declared.
+> **Notice 1**: The exposed Module key must match the name of the public module without the 'Module' suffix. Also, if the name doesn't match, you can specify a custom Module name in the options `{ moduleName: 'CustomName' }` in the property `mfeOutletOptions` iside `MfeOutletDirective` and in the options parameter of the `loadMfe` helper function.
+>
+> For the plugin-based approach, when loads MFE using `MfeOutletDirective` you must declare Component in the exposed Module and the Component name must match the exposed Module key without suffix 'Component'. Also,if the name doesn't match, you can specify a custom Component name in the Input property `mfeOutletOptions = { componentName: 'CustomName' }`;
 
-**Notice 2**: you must follow the rule that only one bean must be declared for an exposed Module and that bean must also be exposed.
+> **Notice 2**: you must follow the rule that only one component must be declared for an exposed Module.
 
 An example webpack.config.js that exposes the EntryComponent micro-frontend "dashboard-mfe":
 
@@ -267,11 +269,7 @@ return {
 		new ModuleFederationPlugin({
 			name: 'dashboard-mfe',
 			exposes: {
-				// Expose Module
-				EntryModule: 'apps/dashboard-mfe/src/app/remote-entry/entry.module.ts',
-				// Expose Component that declared in EntryModule
-				// @NgModule({ declarations: [EntryComponent] });
-				EntryComponent: 'apps/dashboard-mfe/src/app/remote-entry/entry.component.ts',
+				EntryModule: 'apps/dashboard-mfe/src/app/remote-entry/entry.module.ts'
 			},
 			filename: 'remoteEntry',
 			shared: share({ ... }),
