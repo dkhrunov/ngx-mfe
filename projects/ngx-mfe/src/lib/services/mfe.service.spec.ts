@@ -1,12 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { MfeComponentFactoryResolver } from './mfe-component-factory-resolver.service';
+import { MfeService } from './mfe.service';
 
-describe('MfeComponentFactoryResolver', () => {
-	let service: MfeComponentFactoryResolver;
+describe('MfeService', () => {
+	let service: MfeService;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({});
-		service = TestBed.inject(MfeComponentFactoryResolver);
+		service = TestBed.inject(MfeService);
 	});
 
 	it('should be created', () => {

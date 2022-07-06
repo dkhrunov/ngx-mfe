@@ -1,7 +1,6 @@
 import { loadRemoteEntry } from '@angular-architects/module-federation';
 import { ModuleWithProviders, NgModule } from '@angular/core';
 import { MfeOutletDirective } from './directives';
-import { validateMfeString } from './helpers';
 import { NGX_MFE_OPTIONS } from './injection-tokens';
 import { NgxMfeOptions } from './interfaces';
 import { MfeRegistry } from './registry';
@@ -26,9 +25,6 @@ export class MfeModule {
 	public static forRoot(options: NgxMfeOptions): ModuleWithProviders<MfeModule> {
 		const mfeRegistry = MfeRegistry.getInstance(options.mfeConfig);
 		const loadMfeBundle = loadMfeBundleWithMfeRegistry(mfeRegistry);
-
-		if (typeof options.loader === 'string') validateMfeString(options.loader);
-		if (typeof options.fallback === 'string') validateMfeString(options.fallback);
 
 		if (options.preload) {
 			options.preload.map((mfe) => loadMfeBundle(mfe));

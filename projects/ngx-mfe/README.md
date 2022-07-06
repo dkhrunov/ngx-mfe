@@ -2,9 +2,28 @@
 
 A library for working with MFE in Angular in a plugin-based approach and a routing-based approach.
 
-> This library depends on [@angular-architects/module-federation v14](https://www.npmjs.com/package/@angular-architects/module-federation) and Angular v13
+> If you have problems in production build then check this [issue](https://github.com/dkhrunov/ngx-mfe/issues/7). To fix the error when deploying the application to production , you need to __update to version 2.0.0 or higher__.
 
-> If you are using Angular v12 and @angular-architects/module-federation v12.2.0 you should use this [library v1.0.2](https://github.com/dkhrunov/ngx-mfe/tree/1.0.2).
+Have problems after updates? Check out [migration guides](../../migration-guide.md).
+
+## Contents
+
+- [Version Compliance](#version-compliance)
+- [Motivation](#motivation)
+- [Features](#features)
+- [Examples](#examples)
+- [Conventions](#conventions)
+- [Configuring](#configuring)
+- [Load MFE in HTML template / plugin-based approach](#load-mfe-in-html-template--plugin-based-approach)
+- [Passing Data to the MFE Component via mfeOutlet directive](#passing-data-to-the-mfe-component-via-mfeoutlet-directive)
+- [Load MFE by Route](#load-mfe-by-route)
+- [Changelog](#changelog)
+
+## Version Compliance
+ngx-mfe                               | v1.0.0 | v1.0.5 | v2.0.0 |
+--------------------------------------| ------ | ------ | ------ |
+Angular                               |   v12  |   v13  |   v13  |
+@angular-architects/module-federation |   v12  |   v14  |   v14  |
 
 ## Motivation
 
@@ -14,75 +33,43 @@ The **ngx-mfe** is an extension of the functionality of the [@angular-architects
 
 The key feature of the **ngx-mfe** library is ability to work with micro-frontends directly in the HTML template using a plugin-based approach. You can load more than one micro-frontend per page.
 
+> You can use both **ngx-mfe** and **@angular-architects/module-federation** libs together in the same project.
+
 ## Features
 
-🔥 Load multiple micro-frontends directly from the HTML template, with the ability to display the loader component during loading, and the fallback component on error.
+🔥 Load multiple micro-frontend directly from an HTML template with the ability to display a loader component during loading and a fallback component when an error occurs during loading and/or rendering of the mfe component.
 
 🔥 More convenient way to load MFE via Angular Routing.
 
-🔥 Configure different remoteEntryUrl of the MFE for different builds (dev/prod/etc.).
+🔥 It's easy to set up different remoteEntryUrl MFEs for different builds (dev/prod/etc).
 
-## Example app
+## Examples
 
-- [Here you can find an example application using Micro-frontend architecture.](https://github.com/dkhrunov/ngx-mfe-test)
-- [Here you can find a series of articles about Micro-frontends/Module Federation and a step-by-step guide to building an application with Micro-frontends.](https://dekh.medium.com/angular-micro-frontend-architecture-part-1-3-the-concept-of-micro-frontend-architecture-2ff56a5ac264)
-
-## Contents
-
-- [Conventions](#conventions)
-- [Configuring](#configuring)
-- [Load MFE by Route](#load-mfe-by-route)
-- [Load MFE in HTML template / plugin-based approach](#load-mfe-in-html-template--plugin-based-approach)
-- [Changelog](#changelog)
+- [Here you can find an example application using Micro-frontend architecture.](https://github.com/dkhrunov/ngx-mfe-test) (for versions prior to 2.0.0)
+- [Here you can find a series of articles about Micro-frontends/Module Federation and a step-by-step guide to building an application with Micro-frontends.](https://dekh.medium.com/angular-micro-frontend-architecture-part-1-3-the-concept-of-micro-frontend-architecture-2ff56a5ac264) (for versions prior to 2.0.0)
 
 ## Conventions
 
-1. Micro-frontend string or MFE string - string is kebab-case style and matches this pattern `"mfe-app/exposed-file-name"`, where:
+> A standalone component is a component that does not have any dependencies provided or imported in the module where that component is declared
 
-- `mfe-app` - this is the micro-frontend name specified in the property `name` in the `ModuleFederationPlugin`.
-- `exposed-file-name` - it is the exposed file name in kebab-case style specified in the object `exposes` in the `ModuleFederationPlugin`.
+1. To display a standalone MFE component, you only need to __the component file itself__.
 
-	**Example:** For an `address-form` MFE with an exposed `FormModule` file, the MFE string must be `"address-form/form"`.
+    When you display a standalone MFE component through `[mfeOutlet]` directive you can omit `[mfeOutletModule]` input.
 
- 	```js
-	// webpack.config.js file
-	new ModuleFederationPlugin({
-		name: "address-form",
-		filename: "remoteEntry.js",
-		exposes: {
-			Form: 'apps/address-form/src/app/form/form.module.ts',
-		},
-		[...]
-	});
- 	```
+2. To display an MFE component with dependencies in the module where the component was declared, you must expose both __the component file and the module file__ from ModuleFederationPlugin.
 
-	```typescript
-	// form.module.ts file
-	import { CommonModule } from '@angular/common';
-	import { NgModule } from '@angular/core';
-	import { RouterModule } from '@angular/router';
-	import { FormComponent } from './form.component';
+    When you display this type of MFE component with the `[mfeOutlet]` directive, you must declare an input `[mfeOutletModule]` with the value of the exposed module name.
 
-	@NgModule({
-		declarations: [FormComponent],
-		imports: [
-			CommonModule,
-			RouterModule.forChild([
-				{
-					path: '',
-					component: FormComponent,
-				},
-			]),
-		],
-	})
-	export class FormModule {}
-	```
+3. The file name/key of an exposed Module (declared in the ModuleFederationPlugin in the 'expose' property) must match the class name of that Module. 
 
-2. Since **v1.1.0** you don't need to expose from `ModuleFederationPlugin` for plugin-based approach both Module and Component, just specify the Module file.
+    If the name doesn't match, you can specify a custom name for this Module in the @Input() property `mfeOutletOptions = { componentName: 'CustomName' }` of `[mfeOutlet]` directive, and pass `{ moduleName: 'CustomName' }` options to the `loadMfe()` function;
 
-	The exposed Module key must match the name of the public module without the 'Module' suffix. Also, if the name doesn't match, you can specify a custom Module name in the options `{ moduleName: 'CustomName' }` in the property `mfeOutletOptions` iside `MfeOutletDirective` and in the options parameter of the `loadMfe` helper function.
+4. For the plugin-based approach, when loads MFE using `[mfeOutlet]` directive you must declare Component in the exposed Module and the Component name must match the file name/key of an exposed Component class.
+    
+    If the name doesn't match, you can specify a custom name for this Component in the @Input() property `mfeOutletOptions = { componentName: 'CustomName' }` of `[mfeOutlet]` directive, and pass `{ moduleName: 'CustomName' }` options to the `loadMfe()` function;
 
-	For the plugin-based approach, when loads MFE using `MfeOutletDirective` you must declare Component in the exposed Module and the Component name must match the exposed Module key without suffix 'Component'. Also,if the name doesn't match, you can specify a custom Component name in the Input property `mfeOutletOptions = { componentName: 'CustomName' }`;
+5. You must follow the rule that only one Component must be declared for an exposed Module. This is known as SCAM (**S**ingle **C**omponent **A**ngular **M**odule) pattern.
+
 
 ## Configuring
 
@@ -92,65 +79,84 @@ Add the **ngx-mfe** library to a shared property in the ModuleFederationPlugin i
 
 ```typescript
 module.exports = {
-	[...]
-	plugins: [
-		[...]
-		new ModuleFederationPlugin({
-			remotes: {},
-			shared: share({
-				[...]
-				"ngx-mfe": {
-					singleton: true,
-					strictVersion: true,
-					requiredVersion: 'auto',
-					includeSecondaries: true
-				},
-				...sharedMappings.getDescriptors(),
-			}),
-			library: {
-				type: 'module'
-			},
-		}),
-		[...]
-	],
-	[...]
+  [...]
+  plugins: [
+    [...]
+    new ModuleFederationPlugin({
+      remotes: {},
+      shared: share({
+        [...]
+        "ngx-mfe": {
+          singleton: true,
+          strictVersion: true,
+          requiredVersion: 'auto',
+          includeSecondaries: true
+        },
+        ...sharedMappings.getDescriptors(),
+      }),
+      library: {
+        type: 'module'
+      },
+    }),
+    [...]
+  ],
+  [...]
 };
 ```
 
-To configure this library, you should import `MfeModule.forRoot(options: NgxMfeOptions)` to the root module of the Host app(s) and to the root module of the Remote app(s), so that Remote works properly when working as a standalone app:
+To configure this library, you must import `MfeModule.forRoot(options: NgxMfeOptions)` into the root module of the Host app(s) and the root module of the Remote apps in order for Remote to work correctly when running as a standalone application:
 
-> For feature modules just import `MfeModule` without options, where, you may need the functionality of the library, for example, the `MfeOutletDirective` directive.
+> For feature modules just import `MfeModule` without options, where, you may need the functionality of the library, for example, the `MfeOutlet` directive.
 
+For core / app module:
 ```typescript
 @NgModule({
-	imports: [
-		MfeModule.forRoot({
-			mfeConfig: {
-				"dashboard-mfe": "http://localhost:4201/remoteEntry.js",
-				"loaders-mfe": "http://localhost:4202/remoteEntry.js",
-				"fallbacks-mfe": "http://localhost:4203/remoteEntry.js"
-			},
-			preload: ['loaders-mfe', 'fallbacks-mfe'],
-			loader: 'loaders-mfe/spinner',
-			loaderDelay: 500,
-			fallback: 'fallbacks-mfe/not-found',
-		}),
-	],
+  imports: [
+    MfeModule.forRoot({
+      mfeConfig: {
+        "dashboard-mfe": "http://localhost:4201/remoteEntry.js",
+        "loaders-mfe": "http://localhost:4202/remoteEntry.js",
+        "fallbacks-mfe": "http://localhost:4203/remoteEntry.js"
+      },
+      preload: ['loaders-mfe', 'fallbacks-mfe'],
+      loader: {
+        app: 'loaders',
+        module: 'SpinnerModule',
+        component: 'SpinnerComponent',
+      },
+      loaderDelay: 500,
+      fallback: {
+        app: 'fallbacks',
+        module: 'MfeFallbackModule',
+        component: 'MfeFallbackComponent',
+      },
+    }),
+  ],
 })
 export class AppModule {}
 ```
 
+For feature module:
+```typescript
+@NgModule({
+  imports: [
+    MfeModule,
+  ],
+})
+export class Feature1Module {}
+```
+
 List of all available options:
 
-- **mfeConfig** - object where **key** is micro-frontend app name specified in `ModuleFederationPlugin` (webpack.config.js) and **value** is remoteEntryUrl string. All data will be sets to [MfeRegistry](https://github.com/dkhrunov/ngx-mfe/blob/development/projects/ngx-mfe/src/lib/registry/mfe-registry.ts).
+- **mfeConfig** - object where **key** is micro-frontend app name specified in `ModuleFederationPlugin` (webpack.config.js) and **value** is remoteEntryUrl string. All data will be sets to [MfeRegistry](https://github.com/dkhrunov/ngx-mfe/blob/master/projects/ngx-mfe/src/lib/registry/mfe-registry.ts).
 
-	*Key* it's the name same specified in webpack.config.js of MFE (Remote) in option name in `ModuleFederationPlugin`.
+	**Key** it's the name same specified in webpack.config.js of MFE (Remote) in option name in `ModuleFederationPlugin`.
 
- 	*Value* set the following pattern: `{url}/{remoteEntrypointFilename}`.
+ 	**Value** set the following pattern: `{url}/{remoteEntrypointFilename}`.
 
-- `url` is the url where the remote application is hosted.
+  - `url` is the url where the remote application is hosted.
 
-- `remoteEntrypointFilename` is the filename supplied in the remote's webpack configuration.
+  - `remoteEntrypointFilename` is the filename supplied in the remote's webpack configuration.
   
 	Example <http://localhost:4201/remoteEntry.js>
 
@@ -177,48 +183,40 @@ Next options are only works in plugin-based approach with `MfeOutletDirective`:
 
  	*By default is 0.*
 
-- **loader** (Optional) - Displayed when loading the micro-frontend. Specified as a MFE string or Component class.
+- **loader** (Optional) - Displayed when loading the micro-frontend. Implements the `RemoteComponent` interface.
 
- 	*Example: 'loader-mfe/spinner'.*
+  *Example:*
+  ```typescript
+  // Globally uses the "SpinnerComponent" loader component declared in the "SpinnerModule" of the app "loaders".
+  loader: {
+    app: 'loaders',
+    module: 'SpinnerModule',
+    component: 'SpinnerComponent',
+  },
+  ```
 
  	> For better UX, add loader micro-frontends to the `preload`.
 
-- **fallback** (Optional) - Displayed when loading or compiling a micro-frontend with an error. Specified as a MFE string or Component class.
+- **fallback** (Optional) - Displayed when loading or compiling a micro-frontend with an error. Implements the `RemoteComponent` interface.
 
- 	*Example: 'fallback-mfe/not-found'.*
+ 	*Example:*
+  ```typescript
+  // Globally uses the "MfeFallbackComponent" fallback component declared in the "MfeFallbackModule" of the app "fallbacks".
+  fallback: {
+    app: 'fallbacks',
+    module: 'MfeFallbackModule',
+    component: 'MfeFallbackComponent',
+  },
+  ```
 
-    > For better UX, add fallback micro-frontends to the `preload`.
+  > For better UX, add fallback micro-frontends to the `preload`.
 
 You can get all configured options by injecting `NGX_MFE_OPTIONS` by DI:
 
 ```typescript
 class AppComponent {
-
- 	constructor(@Inject(NGX_MFE_OPTIONS) public options: NgxMfeOptions) {}
+  constructor(@Inject(NGX_MFE_OPTIONS) public options: NgxMfeOptions) {}
 }
-```
-
-## Load MFE by Route
-
-To use micro-frontends in Routing, you must import and apply the helper function called `loadMfe`, like in the example below:
-
-```typescript
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import { loadMfe } from '@dkhrunov/ng-mfe';
-
-const routes: Routes = [
-	{
-		path: 'dashboard',
-		loadChildren: () => loadMfe('dashboard-mfe/entry'),
-	},
-];
-
-@NgModule({
-	imports: [RouterModule.forRoot(routes, { initialNavigation: 'enabledBlocking' })],
-	exports: [RouterModule],
-})
-export class AppRoutingModule {}
 ```
 
 ## Load MFE in HTML template / plugin-based approach
@@ -228,12 +226,6 @@ This approach allows us to load micro-frontends directly from HTML.
 The advantages of this approach are that we can display several MFEs at once on the same page, even display several of the same MFEs.
 
 More about plugin-based approach [here](https://dekh.medium.com/angular-micro-frontend-architecture-part-3-3-mfe-plugin-based-approach-f36dc9849b0).
-
-> **Notice 1**: The exposed Module key must match the name of the public module without the 'Module' suffix. Also, if the name doesn't match, you can specify a custom Module name in the options `{ moduleName: 'CustomName' }` in the property `mfeOutletOptions` iside `MfeOutletDirective` and in the options parameter of the `loadMfe` helper function.
->
-> For the plugin-based approach, when loads MFE using `MfeOutletDirective` you must declare Component in the exposed Module and the Component name must match the exposed Module key without suffix 'Component'. Also,if the name doesn't match, you can specify a custom Component name in the Input property `mfeOutletOptions = { componentName: 'CustomName' }`;
-
-> **Notice 2**: you must follow the rule that only one component must be declared for an exposed Module.
 
 An example webpack.config.js that exposes the EntryComponent micro-frontend "dashboard-mfe":
 
@@ -248,9 +240,7 @@ return {
 			name: 'dashboard-mfe',
 			exposes: {
 				EntryModule: 'apps/dashboard-mfe/src/app/remote-entry/entry.module.ts',
-				// Prior to version 1.1.0, you must expose the Component declared in this Module.
-				// uncomment next line if using ngx-mfe below version in 1.1.0
-				// EntryComponent: 'apps/dashboard-mfe/src/app/remote-entry/entry.component.ts',
+				EntryComponent: 'apps/dashboard-mfe/src/app/remote-entry/entry.component.ts',
 			},
 			filename: 'remoteEntry',
 			shared: share({ ... }),
@@ -260,88 +250,394 @@ return {
 };
 ```
 
-This architectural approach use `MfeOutletDirective`.
+This architectural approach use `MfeOutletDirective` \ `[mfeOutlet]`.
 
 1. Just display the component "EntryComponent" of micro-frontend "dashboard-mfe":
 
-	```html
-	<ng-container *mfeOutlet="'dashboard-mfe/entry'"></ng-container>
-	```
+    First variant:
+
+    ```html
+    <ng-template
+      mfeOutlet="dashboard-mfe"
+      mfeOutletModule="EntryModule"
+      mfeOutletComponent="EntryComponent"
+    >
+    </ng-template>
+    ```
+
+    Second variant:
+    ```html
+    <ng-container
+      *mfeOutlet="
+        'dashboard-mfe';
+        module: 'EntryModule';
+        component: 'EntryComponent';
+      "
+    >
+    </ng-container>
+    ```
+
+    These two examples are equal and display the MFE "EntryComponent".
 
 2. You can pass/bind `@Input` and `@Output` props to MFE component:
 
-	```html
-	<!-- app.component.html file -->
-	<ng-container *mfeOutlet="
-		'dashboard-mfe/entry';
-		inputs: { text: text$ | async };
-		outputs: { click: onClick }
-	">
-	</ng-container>
-	```
+    ```html
+    <!-- app.component.html file -->
+    <ng-container
+      *mfeOutlet="
+        'dashboard-mfe';
+        module: 'EntryModule';
+        component: 'EntryComponent';
+        inputs: { text: text$ | async };
+        outputs: { click: onClick };
+      "
+    ></ng-container>
+    ```
 
-	```typescript
-	// app.component.ts file
-	@Component({
-		selector: 'app-root',
-		templateUrl: './app.component.html',
-		styleUrls: ['./app.component.scss'],
-		changeDetection: ChangeDetectionStrategy.OnPush,
-	})
-	export class AppComponent {
-		[...]
-		// timer emits after 1 second, then every 2 seconds
-		public readonly text$: Observable<number> = timer(1000, 2000);
+    ```typescript
+    // app.component.ts file
+    @Component({
+      selector: 'app-root',
+      templateUrl: './app.component.html',
+      styleUrls: ['./app.component.scss'],
+      changeDetection: ChangeDetectionStrategy.OnPush,
+    })
+    export class AppComponent {
+      [...]
+      // timer emits after 1 second, then every 2 seconds
+      public readonly text$: Observable<number> = timer(1000, 2000);
 
-		// on click log to console event
-		public onClick(event: MouseEvent): void {
-			console.log('clicked', event);
-		}
-		[...]
-	}
-	```
+      // on click log to console event
+      public onClick(event: MouseEvent): void {
+        console.log('clicked', event);
+      }
+      [...]
+    }
+    ```
 
-	> If you try to bind a @Input() property that is not in the component, then an error will fall into the console:
-	> "Input **someInput** is not input of **SomeComponent**."
-
-	> If you try to bind a @Output() property that is not in the component, then an error will fall into the console:
-	> "Output **someOutput** is not output of **SomeComponent**."
-
-	> If you try to pass a non-function, then an error will fall into the console:
-	> "Output **someOutput** must be a function."
+    > If you try to bind a @Output() property that is not in the component, then an error will fall into the console:
+    > "Output **someOutput** is not output of **SomeComponent**."
+    >
+    > If you try to pass a non-function, then an error will fall into the console:
+    > "Output **someOutput** must be a function."
 
 3. To override the default loader delay, configured in `MfeModule.forRoot({ ... })`, provide custom number in ms to property `loaderDelay`:
 
-	```html
-	<ng-container *mfeOutlet="'dashboard-mfe/entry'; loaderDelay: 1000"></ng-container>
-	```
+    ```html
+    <ng-container *mfeOutlet="'dashboard-mfe/entry'; loaderDelay: 1000"></ng-container>
+	  ```
 
-4. To override the default loader and fallback components, configured in `MfeModule.forRoot({ ... })`, specify content with `TemplateRef` or MFE string pass it to the appropriate properties `loader` and `fallback`:
+4. To override the default loader and fallback components, configured in `MfeModule.forRoot({ ... })`, specify content with `TemplateRef`, pass it to the appropriate properties `loader` and `fallback`:
 
-	> In the example below, `loader` provided as a TemplateRef, and `fallback` as a micro-frontend string.
+    ```html
+    <ng-container
+      *mfeOutlet="
+        'dashboard-mfe';
+        module: 'EntryModule';
+        component: 'EntryComponent';
+        loader: loaderTpl,
+        fallback: fallbackTpl,
+      "
+    ></ng-container>
 
-	```html
-	<ng-container *mfeOutlet="
-		'address-form/form';
-		loader: loader;
-		fallback: 'fallback-mfe/not-found'
-	">
-	</ng-container>
+    <ng-template #loaderTpl>
+      <div>loading...</div>
+    </ng-template>
 
-	<ng-template #loader>
-		<div>loading...</div>
-	</ng-template>
-	```
+    <ng-template #fallbackTpl>
+      <div>Ooops! Something went wrong</div>
+    </ng-template>
+    ```
+
+    ```html
+    <!-- TemplateRef that render loader as MFE component -->
+    <ng-template
+      mfeOutlet="dashboard-mfe"
+      mfeOutletModule="EntryModule"
+      mfeOutletComponent="EntryComponent"
+      [mfeOutletLoader]="loaderMfeTpl"
+    ></ng-template>
+
+    <ng-template #loaderMfeTpl>
+      <ng-template
+        mfeOutlet="loaders-mfe"
+        mfeOutletModule="SpinnerModule"
+        mfeOutletComponent="SpinnerComponent"
+        [mfeOutletLoader]="undefined"
+        [mfeOutletLoaderDelay]="0"
+      >
+      </ng-template>
+    </ng-template>
+    ```
 
 6. You can also provide a custom injector for a component like this:
 
-	```html
-	<ng-container *mfeOutlet="'address-form/form'; injector: customInjector"></ng-container>
-	```
+    ```html
+    <ng-template
+      mfeOutlet="dashboard-mfe"
+      mfeOutletModule="EntryModule"
+      mfeOutletComponent="EntryComponent"
+      [mfeOutletInjector]="customInjector"
+    ></ng-template>
+    ```
+
+
+## Passing Data to the MFE Component via mfeOutlet directive
+
+After using this library for some time, as the author of this library, I came to the conclusion that using @Inputs and @Outputs of an MFE component through the `[mfeOutletInputs]` `[mfeOutletOutputs]` properties is not the best practice. Try to make your MFE components as independent as possible from the external environment. But if you still have to pass some values ​​to the component, you can do it in two ways:
+
+1. As I wrote above through the properties `[mfeOutletInputs]` `[mfeOutletOutputs]`
+
+    component.html:
+    ```html
+    <ng-template
+      mfeOutlet="dashboard-mfe"
+      mfeOutletModule="EntryModule"
+      mfeOutletComponent="EntryComponent"
+      [mfeOutletInputs]="{ text: text$ | async }"
+      [mfeOutletOutputs]="{ click: onClick }"
+    >
+    </ng-template>
+    ```
+
+    component.ts
+    ```typescript
+    @Component({ ... })
+    export class Component {
+      public text$ = new BehaviorSubject<string>('Test string');
+
+      constructor() { }
+
+      public onClick(bool: MouseEvent): void {
+        console.log('login', bool);
+      }
+    }
+    ```
+
+2. The second way is to create a new injector and add the necessary data for the MFE component to it. The `[mfeOutlet]` directive has the `[mfeOutletInjector]` property through which you can pass the desired injector, when the component is created, the previously passed injector in the `[mfeOutletInjector]` property will be used instead of the current injector.
+
+    component.html:
+    ```html
+    <ng-template
+      mfeOutlet="dashboard-mfe"
+      mfeOutletModule="EntryModule"
+      mfeOutletComponent="EntryComponent"
+      [mfeOutletInjector]="dashboardMfeInjector"
+    >
+    </ng-template>
+    ```
+
+    component.ts
+    ```typescript
+    @Component({ ... })
+    export class Component {
+      public readonly dashboardMfeInjector: Injector;
+
+      constructor(private readonly _injector: Injector) {
+        this.dashboardMfeInjector = Injector.create({
+          parent: this._injector,
+          providers: [
+            {
+              provide: DASHBOARD_DATA,
+              useValue: data,
+            },
+          ],
+        });
+      }
+    }
+    ```
+
+## Load MFE by Route
+
+To use micro-frontends in Routing, you must import and apply the helper function called `loadMfe`, like in the example below:
+
+```typescript
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { loadMfe } from '@dkhrunov/ng-mfe';
+
+const routes: Routes = [
+  {
+    path: 'dashboard',
+    loadChildren: () => loadMfe('dashboard-mfe', 'EntryModule'),
+  },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes, { initialNavigation: 'enabledBlocking' })],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
+```
 
 ## Changelog
 
-### Changes in v1.1.0:
+### Changes in __v2.0.0__ (_Breaking changes_)
+
+__Why has the API changed?__ - The problem is that when you use the `[mfeOutlet]` directive [issue](https://github.com/dkhrunov/ngx-mfe/issues/7), it tries to find the component inside the compiled module by name (as a string), but in runtime the class name will be optimized and replaced with a short character. For example, you have a class `TestComponent`, it can be changed to the class name `a` and this causes this error.
+
+#### General:
+- To properly use the plugin-based approach in a micro-frontend architecture, or simply if you are use `[mfeOutlet]` directive, you must now expose both the component file and module file in which the component is declared to the ModuleFederationPlugin.
+
+  __Rarerly :__ or, if your micro-frontend component is standalone (a standalone component is a component that does not have any dependencies declared or imported in the module where that component is declared), then it is sufficient to provide just that component file to the ModuleFederationPlugin;
+
+- Now __ngx-mfe__ does not use `Micro-frontend string` (or anouther name `MFE string`) is a kebab-case style string and matches the pattern `"mfe-app-name/exposed-file-name"` (__it was used until version 2.0.0__);
+
+- `MFE string` has been replaced by a new type `RemoteComponent`;
+
+- The `validateMfe` function has been removed (__it was used until version 2.0.0__);
+
+- The `loader` and `fallback` properties in the `NgxMfeOptions` has been changed from `MFE string` to `RemoteComponent` type:
+ 
+  Before v2.0.0:
+  ```typescript
+  @NgModule({
+    declarations: [AppComponent],
+    imports: [
+      BrowserModule,
+      BrowserAnimationsModule,
+      MfeModule.forRoot({
+        mfeConfig: {
+          "dashboard-mfe": "http://localhost:4201/remoteEntry.js",
+          "loaders-mfe": "http://localhost:4202/remoteEntry.js",
+          "fallbacks-mfe": "http://localhost:4203/remoteEntry.js"
+        },
+        loader: 'loaders/spinner',
+        fallback: 'fallbacks/mfe-fallback',
+      }),
+    ],
+    bootstrap: [AppComponent],
+  })
+  export class AppModule {}
+  ```
+
+  Since v2.0.0:
+  ```typescript
+  @NgModule({
+    declarations: [AppComponent],
+    imports: [
+      BrowserModule,
+      BrowserAnimationsModule,
+      MfeModule.forRoot({
+        mfeConfig: {
+          "dashboard-mfe": "http://localhost:4201/remoteEntry.js",
+          "loaders-mfe": "http://localhost:4202/remoteEntry.js",
+          "fallbacks-mfe": "http://localhost:4203/remoteEntry.js"
+        },
+        loader: {
+          app: 'loaders',
+          module: 'SpinnerModule',
+          component: 'SpinnerComponent',
+        },
+        fallback: {
+          app: 'fallbacks',
+          module: 'MfeFallbackModule',
+          component: 'MfeFallbackComponent',
+        },
+      }),
+    ],
+    bootstrap: [AppComponent],
+  })
+  export class AppModule {}
+  ```
+  
+- Removed `moduleName` property from `LoadMfeOptions` type;
+- Now, wherever you need to specify the name of the exposed file through the config in the webpack.config in the ModuleFederationPlugin, you must specify exactly the same name as in the config itself, the kebab-style name was used earlier.
+  ```javascript
+  // webpack.config.js
+  exposes: {
+    // LoginModule name of the exposed file login.module.ts
+		LoginModule: 'apps/auth-mfe/src/app/login/login.module.ts',
+	},  
+  ```
+
+  Before v2.0.0:
+  ```typescript
+  loadMfe('auth-mfe/login-module')
+  ```
+
+  Since v2.0.0:
+  ```typescript
+  loadMfe('auth-mfe' 'LoginModule')
+  ```
+
+#### LoadMfe function:
+- Arguments changed in `LoadMfe` function:
+  
+  Before v2.0.0:
+  ```typescript
+  async function loadMfe<T = unknown>(mfeString: string, options?: LoadMfeOptions): Promise<Type<T>> {}
+  ```
+
+  Since v2.0.0:
+  ```typescript
+  async function loadMfe<T = unknown>(remoteApp: string, exposedFile: string, options?: LoadMfeOptions): Promise<Type<T>> {}
+  ```
+  - `remoteApp` - is the name of the remote app as specified in the webpack.config.js file in the ModuleFederationPlugin in the __name__ property;
+  - `exposedFile` - is the key (or name) of the exposed file specified in the webpack.config.js file in the ModuleFederationPlugin in the __exposes__ property;
+
+#### MfeOutlet directive:
+- Since the `Mfe string` has been removed from the library, the API of `[mfeOutlet]` directive has changed:
+  1. `mfeOutletLoader` and  `mfeOutletFallback` now accept only `TemplateRef`, more details below.
+  2. To load a standalone component, you must specify the following details: `mfeOutlet` with the name of the application, `mfeOutletComponent` with the name of the component's open file from the ModuleFederationPlugin in webpack.config. But to load a non-standalone component, you must additionally specify `mfeOutletModule` with the name of the open module file in which the component is declared for the ModuleFederationPlugin in webpack.config.
+  3.
+- `@Input('mfeOutletOptions')' options` changed type from `MfeComponentFactoryResolverOptions` to `LoadMfeOptions`;
+- `@Input('mfeOutletLoader')' loader` and `@Input('mfeOutletFallback') fallback` now accept only `TemplateRef`, not `TemplateRef` or `Mfe string`. But you can still use micro-frontend component for `loader` and `fallback` in the `[mfeOutlet]`, like in the example below:
+
+  ```html
+  <!-- With Mfe loader -->
+  <ng-template
+    mfeOutlet="dashboard-mfe"
+    mfeOutletModule="EntryModule"
+    mfeOutletComponent="EntryComponent"
+    [mfeOutletLoader]="loaderMfe"
+  >
+  </ng-template>
+
+  <!-- Mfe component for loader -->
+  <ng-template #loaderMfe>
+      <!-- For loader Mfe you should set mfeOutletLoader to undefined, and mfeOutletLoaderDelay to 0. For better UX. -->
+      <ng-template
+        mfeOutlet="loaders-mfe"
+        mfeOutletModule="SpinnerModule"
+        mfeOutletComponent="SpinnerComponent"
+        [mfeOutletLoader]="undefined"
+        [mfeOutletLoaderDelay]="0"
+      >
+      </ng-template>
+  </ng-template>
+
+  <!-- With simple HTML content as loader -->
+  <ng-template
+    mfeOutlet="dashboard-mfe"
+    mfeOutletModule="EntryModule"
+    mfeOutletComponent="EntryComponent"
+    [mfeOutletLoader]="loaderMfe"
+  >
+  </ng-template>
+  
+  <!-- Simple HTML content. -->
+  <ng-template #loader>
+      <div>loading...</div>
+  </ng-template>
+  ```
+
+#### MfeComponentFactoryResolver:
+- The `MfeComponentFactoryResolver` has been replaced with `MfeService` and the API has been changed;
+- The `MfeComponentFactoryResolverOptions` type has been removed;
+
+#### MfeComponentCache
+- Now the `MfeComponentCache` not only saves `ComponentFactory<T>` but also `Type<T>`;
+
+#### DynamicComponentBinding
+- The `bindInputs()` and `bindOutputs()` methods now require `ComponentRef<any>` in the first argument, `MfeOutletInputs`/`MfeOutletOutputs` are method dependent in the second, and the third argument has been removed;
+- The `DynamicComponentInputs` and `DynamicComponentOutputs` types have been removed because these types are replaced in `bindInputs()` and `bindOutputs()` respectively by the `ComponentRef<any>` type;
+- The `validateInputs()` method has been removed;
+- The `validateOutputs()` method is now private;
+
+---------------
+
+### Changes in __v1.1.0__:
 
 - Deleted the `loadMfeComponent` helper function;
 - Deleted the `parseMfeString` helper function;
@@ -355,9 +651,12 @@ This architectural approach use `MfeOutletDirective`.
 
 	For the plugin-based approach, when loads MFE using `MfeOutletDirective` you must declare Component in the exposed Module and the Component name must match the exposed Module key without suffix 'Component'. Also, if the name doesn't match, you can specify a custom Component name in the Input property `mfeOutletOptions = { componentName: 'CustomName' }`;
 
+---------------
 
-### Changes in v1.0.8:
+### Changes in __v1.0.8__:
 
 - `IMfeModuleRootOptions` interface renamed to `NgxMfeOptions`;
 - Property `delay` in the `NgxMfeOptions` renamed to `loaderDelay`;
 - `OPTIONS` injection token renamed to `NGX_MFE_OPTIONS`;
+
+---------------
