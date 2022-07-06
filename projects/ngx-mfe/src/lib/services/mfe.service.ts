@@ -25,7 +25,7 @@ export class MfeService {
 	public async loadModularComponent<TModule = unknown, TComponent = unknown>(
 		remoteComponent: ModularRemoteComponent,
 		injector: Injector = this._injector,
-		options: LoadMfeOptions = { type: 'module' }
+		options?: LoadMfeOptions
 	): Promise<ComponentFactory<TComponent>> {
 		try {
 			if (this._mfeCache.isRegistered(remoteComponent)) {
@@ -67,7 +67,7 @@ export class MfeService {
 	 */
 	public async loadStandaloneComponent<TComponent = unknown>(
 		remoteComponent: StandaloneRemoteComponent,
-		options: LoadMfeOptions = { type: 'module' }
+		options?: LoadMfeOptions
 	): Promise<Type<TComponent>> {
 		try {
 			if (this._mfeCache.isRegistered(remoteComponent)) {
