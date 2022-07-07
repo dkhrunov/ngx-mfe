@@ -45,7 +45,8 @@ The key feature of the **ngx-mfe** library is ability to work with micro-fronten
 
 ## Examples
 
-- [Here you can find an example application using Micro-frontend architecture.](https://github.com/dkhrunov/ngx-mfe-test) (for versions prior to 2.0.0)
+- [Example of an application using ngx-mfe v1.](https://github.com/dkhrunov/ngx-mfe-test)
+- [Example of an application using ngx-mfe v2.](https://github.com/dkhrunov/ngx-mfe-test/tree/update-to-ngx-mfe-v2)
 - [Here you can find a series of articles about Micro-frontends/Module Federation and a step-by-step guide to building an application with Micro-frontends.](https://dekh.medium.com/angular-micro-frontend-architecture-part-1-3-the-concept-of-micro-frontend-architecture-2ff56a5ac264) (for versions prior to 2.0.0)
 
 ## Conventions
