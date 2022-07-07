@@ -1,10 +1,10 @@
 # Angular micro-frontend library - ngx-mfe
 
-A library for working with MFE in Angular in a plugin-based approach and a routing-based approach.
+A library for working with MFE in Angular in a plugin-based approach and with Angular routing.
 
-> If you have problems in production build then check this [issue](https://github.com/dkhrunov/ngx-mfe/issues/7). To fix the error when deploying the application to production , you need to __update to version 2.0.0 or higher__.
+> If you have production build issues check this [issue](https://github.com/dkhrunov/ngx-mfe/issues/7). __This issue has been fixed in version 2.0.0.__
 
-Have problems after updates? Check out [migration guides](./migration-guide.md).
+Have problems with updates? Check out the [migration guides](./migration-guide.md).
 
 ## Contents
 
@@ -29,7 +29,7 @@ Angular                               |   v12  |   v13  |   v13  |
 
 When Webpack 5 came along and the Module Federation plugin, it became possible to separately compile and deploy code for front-end applications, thereby breaking up a monolithic front-end application into separate and independent **M**icro**F**ront**E**nd (MFE) applications.
 
-The **ngx-mfe** is an extension of the functionality of the [@angular-architects/module-federation](https://www.npmjs.com/package/@angular-architects/module-federation). Using @angular-architects/module-federation you could only upload one micro-frontend per page (in the Routing), this limitation was the main reason for the creation of this library - **ngx-mfe**.
+The **ngx-mfe** is an extension of the functionality of the [@angular-architects/module-federation](https://www.npmjs.com/package/@angular-architects/module-federation). Using @angular-architects/module-federation you could only upload one micro-frontend per page (in the Routing), this limitation was the main reason for the creation of this library.
 
 The key feature of the **ngx-mfe** library is ability to work with micro-frontends directly in the HTML template using a plugin-based approach. You can load more than one micro-frontend per page.
 
@@ -45,18 +45,47 @@ The key feature of the **ngx-mfe** library is ability to work with micro-fronten
 
 ## Examples
 
-- [Here you can find an example application using Micro-frontend architecture.](https://github.com/dkhrunov/ngx-mfe-test) (for versions prior to 2.0.0)
+- [Example of an application using ngx-mfe v1.](https://github.com/dkhrunov/ngx-mfe-test)
+- [Example of an application using ngx-mfe v2.](https://github.com/dkhrunov/ngx-mfe-test/tree/update-to-ngx-mfe-v2)
 - [Here you can find a series of articles about Micro-frontends/Module Federation and a step-by-step guide to building an application with Micro-frontends.](https://dekh.medium.com/angular-micro-frontend-architecture-part-1-3-the-concept-of-micro-frontend-architecture-2ff56a5ac264) (for versions prior to 2.0.0)
+
 
 ## Conventions
 
-> A standalone component is a component that does not have any dependencies provided or imported in the module where that component is declared
-
 1. To display a standalone MFE component, you only need to __the component file itself__.
+
+    > A standalone component is a component that does not have any dependencies provided or imported in the module where that component is declared.
+
+    > The standalone component is not preferred and rarely used.
 
     When you display a standalone MFE component through `[mfeOutlet]` directive you can omit `[mfeOutletModule]` input.
 
+    ```typescript
+    // dashboard-mfe webpack.config
+    {
+      new ModuleFederationPlugin({
+        name: 'dashboard-mfe',
+        filename: 'remoteEntry.js',
+        exposes: {
+          EntryComponent: 'apps/dashboard-mfe/src/app/remote-entry/entry.component.ts',
+        },
+        [...]
+      });
+    }
+    ```
+
+    ```html
+    <!-- shell-app -->
+    <ng-template
+      mfeOutlet="dashboard-mfe"
+      mfeOutletComponent="EntryComponent"
+    >
+    </ng-template>
+    ```
+
 2. To display an MFE component with dependencies in the module where the component was declared, you must expose both __the component file and the module file__ from ModuleFederationPlugin.
+
+    > This approach is widely used and recommended.
 
     When you display this type of MFE component with the `[mfeOutlet]` directive, you must declare an input `[mfeOutletModule]` with the value of the exposed module name.
 
@@ -72,8 +101,6 @@ The key feature of the **ngx-mfe** library is ability to work with micro-fronten
 
 
 ## Configuring
-
-> For feature modules just import `MfeModule`
 
 Add the **ngx-mfe** library to a shared property in the ModuleFederationPlugin inside webpack.config.js file for each application in your workspace.
 
@@ -160,7 +187,7 @@ List of all available options:
   
 	Example <http://localhost:4201/remoteEntry.js>
 
-	You can get `MfeRegistry` by DI:
+	You can get `MfeRegistry` from DI:
 
 	```typescript
 	class AppComponent {
@@ -254,8 +281,7 @@ This architectural approach use `MfeOutletDirective` \ `[mfeOutlet]`.
 
 1. Just display the component "EntryComponent" of micro-frontend "dashboard-mfe":
 
-    First variant:
-
+    One variant:
     ```html
     <ng-template
       mfeOutlet="dashboard-mfe"
@@ -265,7 +291,7 @@ This architectural approach use `MfeOutletDirective` \ `[mfeOutlet]`.
     </ng-template>
     ```
 
-    Second variant:
+    Other variant:
     ```html
     <ng-container
       *mfeOutlet="
@@ -277,7 +303,7 @@ This architectural approach use `MfeOutletDirective` \ `[mfeOutlet]`.
     </ng-container>
     ```
 
-    These two examples are equal and display the MFE "EntryComponent".
+    > These two examples are equal and display the MFE "EntryComponent".
 
 2. You can pass/bind `@Input` and `@Output` props to MFE component:
 
@@ -327,7 +353,7 @@ This architectural approach use `MfeOutletDirective` \ `[mfeOutlet]`.
     <ng-container *mfeOutlet="'dashboard-mfe/entry'; loaderDelay: 1000"></ng-container>
 	  ```
 
-4. To override the default loader and fallback components, configured in `MfeModule.forRoot({ ... })`, specify content with `TemplateRef`, pass it to the appropriate properties `loader` and `fallback`:
+4. To override the default loader and fallback MFE components, configured in `MfeModule.forRoot({ ... })`, specify content with `TemplateRef`, pass it to the appropriate properties `loader` and `fallback`:
 
     ```html
     <ng-container
