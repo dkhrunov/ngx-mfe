@@ -1,29 +1,26 @@
-import { Type } from '@angular/core';
 import { MfeConfig } from './mfe-config.interface';
+import { RemoteComponent } from './remote-component.interface';
 
 /**
  * Global options.
  */
-export interface NgxMfeOptions<TLoader = unknown, TFallback = unknown> {
+export interface NgxMfeOptions {
 	/**
 	 * Options for each micro-frontend app.
 	 */
 	mfeConfig: MfeConfig;
 	/**
-	 * List of micro-fronts, bundles of the specified micro-fronts
-	 * will be loaded immediately and saved in the cache.
+   * List of names of remote appls, declared apps will be downloaded immediately and stored in the cache.
 	 */
 	preload?: string[];
 	/**
-	 * Loader component.
-	 * 
-	 * Accepts an MFE string or Component class.
+	 * Loader remote component.
 	 *
 	 * Shows when load bundle of the micro-frontend.
 	 *
 	 * For better UX, add this micro-frontend to {@link preload} array.
 	 */
-	loader?: string | Type<TLoader>;
+	loader?: RemoteComponent;
 	/**
 	 * The delay between displaying the contents of the bootloader and the micro-frontend.
 	 *
@@ -31,14 +28,12 @@ export interface NgxMfeOptions<TLoader = unknown, TFallback = unknown> {
 	 */
 	loaderDelay?: number;
 	/**
-	 * Fallback component.
+	 * Fallback remote component.
 	 * 
-	 * Accepts an MFE string or Component class.
-	 *
 	 * Showing when an error occurs while loading bundle
 	 * or when trying to display the contents of the micro-frontend.
 	 *
 	 * For better UX, add this micro-frontend to {@link preload} array.
 	 */
-	fallback?: string | Type<TFallback>;
+	fallback?: RemoteComponent;
 }

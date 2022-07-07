@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 
 import { MfeComponentsCache } from '.';
 
-describe(MfeComponentsCache, () => {
+describe('MfeComponentsCache', () => {
 	let service: MfeComponentsCache;
 
 	beforeEach(() => {
