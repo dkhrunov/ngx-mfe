@@ -350,7 +350,14 @@ This architectural approach use `MfeOutletDirective` \ `[mfeOutlet]`.
 3. To override the default loader delay, configured in `MfeModule.forRoot({ ... })`, provide custom number in ms to property `loaderDelay`:
 
     ```html
-    <ng-container *mfeOutlet="'dashboard-mfe/entry'; loaderDelay: 1000"></ng-container>
+    <ng-container
+      *mfeOutlet="
+        'dashboard-mfe';
+        module: 'EntryModule';
+        component: 'EntryComponent';
+        loaderDelay: 1000
+      "
+    ></ng-container>
 	  ```
 
 4. To override the default loader and fallback MFE components, configured in `MfeModule.forRoot({ ... })`, specify content with `TemplateRef`, pass it to the appropriate properties `loader` and `fallback`:
