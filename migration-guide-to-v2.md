@@ -154,6 +154,7 @@ __Why has the API changed?__ - The problem is that when you use the `[mfeOutlet]
 
 ## MfeComponentCache
 - Now the `MfeComponentCache` not only saves `ComponentFactory<T>` but also `Type<T>`;
+- In version 2.1.0 `ComponentFactory<T>` was replaced to `ComponentWithNgModuleRef<TComponent, TModule>`;
 
 ## DynamicComponentBinding
 - The `bindInputs()` and `bindOutputs()` methods now require `ComponentRef<any>` in the first argument, `MfeOutletInputs`/`MfeOutletOutputs` are method dependent in the second, and the third argument has been removed;
