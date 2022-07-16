@@ -506,7 +506,7 @@ export class AppRoutingModule {}
 
 ### Changes in __v2.1.0__ 
 Fixed:
-- Fix error, if the backup option is also unavailable, then simply clear the view;
+- Fix error, if the fallback is also unavailable, then simply clear the view;
 
 Refactored:
 - Renamed `MfeService` to `RemoteComponentLoader`;
