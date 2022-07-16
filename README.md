@@ -4,7 +4,7 @@ A library for working with MFE in Angular in a plugin-based approach and with An
 
 > If you have production build issues check this [issue](https://github.com/dkhrunov/ngx-mfe/issues/7). __This issue has been fixed in version 2.0.0.__
 
-Have problems with updates? Check out the [migration guides](./migration-guide.md).
+Have problems with updates? Check out the  [migration guides](../../migration-guide.md).
 
 ## Contents
 
@@ -48,7 +48,6 @@ The key feature of the **ngx-mfe** library is ability to work with micro-fronten
 - [Example of an application using ngx-mfe v1.](https://github.com/dkhrunov/ngx-mfe-test)
 - [Example of an application using ngx-mfe v2.](https://github.com/dkhrunov/ngx-mfe-test/tree/update-to-ngx-mfe-v2)
 - [Here you can find a series of articles about Micro-frontends/Module Federation and a step-by-step guide to building an application with Micro-frontends.](https://dekh.medium.com/angular-micro-frontend-architecture-part-1-3-the-concept-of-micro-frontend-architecture-2ff56a5ac264) (for versions prior to 2.0.0)
-
 
 ## Conventions
 
@@ -350,7 +349,14 @@ This architectural approach use `MfeOutletDirective` \ `[mfeOutlet]`.
 3. To override the default loader delay, configured in `MfeModule.forRoot({ ... })`, provide custom number in ms to property `loaderDelay`:
 
     ```html
-    <ng-container *mfeOutlet="'dashboard-mfe/entry'; loaderDelay: 1000"></ng-container>
+    <ng-container
+      *mfeOutlet="
+        'dashboard-mfe';
+        module: 'EntryModule';
+        component: 'EntryComponent';
+        loaderDelay: 1000
+      "
+    ></ng-container>
 	  ```
 
 4. To override the default loader and fallback MFE components, configured in `MfeModule.forRoot({ ... })`, specify content with `TemplateRef`, pass it to the appropriate properties `loader` and `fallback`:
@@ -497,6 +503,20 @@ export class AppRoutingModule {}
 ```
 
 ## Changelog
+
+### Changes in __v2.1.0__ 
+Fixed:
+- Fix error, if the backup option is also unavailable, then simply clear the view;
+
+Refactored:
+- Renamed `MfeService` to `RemoteComponentLoader`;
+- Renamed `MfeComponentsCache` to `RemoteComponentsCache`;
+- Renamed `ModularRemoteComponent` type to `RemoteComponentWithModule`;
+- Wrapped to `ngZone.runOutside` the `loadMfe` function calls inside the `RemoteComponentLoader`;
+- Added new type `ComponentWithNgModuleRef<TComponent, TModule>`, that holds component class `Type<T>` and `NgModuleRef`;
+- Changed cached value for `RemoteComponentWithModule` from `ComponentFactory` to `ComponentWithNgModuleRef`;
+- In `RemoteComponentLoader` (old name `MfeService`) renamed function `loadModularComponent` to `loadComponentWithModule`
+- Changed return type of method `loadComponentWithModule` inside class `RemoteComponentLoader` from `Promise<ComponentFactory<TComponent>>` to `Promise<ComponentWithNgModuleRef<TComponent, TModule>>`;
 
 ### Changes in __v2.0.0__ (_Breaking changes_)
 
@@ -654,6 +674,7 @@ __Why has the API changed?__ - The problem is that when you use the `[mfeOutlet]
 
 #### MfeComponentCache
 - Now the `MfeComponentCache` not only saves `ComponentFactory<T>` but also `Type<T>`;
+- In version 2.1.0 `ComponentFactory<T>` was replaced to `ComponentWithNgModuleRef<TComponent, TModule>`;
 
 #### DynamicComponentBinding
 - The `bindInputs()` and `bindOutputs()` methods now require `ComponentRef<any>` in the first argument, `MfeOutletInputs`/`MfeOutletOutputs` are method dependent in the second, and the third argument has been removed;

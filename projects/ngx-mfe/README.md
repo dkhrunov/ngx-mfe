@@ -349,7 +349,14 @@ This architectural approach use `MfeOutletDirective` \ `[mfeOutlet]`.
 3. To override the default loader delay, configured in `MfeModule.forRoot({ ... })`, provide custom number in ms to property `loaderDelay`:
 
     ```html
-    <ng-container *mfeOutlet="'dashboard-mfe/entry'; loaderDelay: 1000"></ng-container>
+    <ng-container
+      *mfeOutlet="
+        'dashboard-mfe';
+        module: 'EntryModule';
+        component: 'EntryComponent';
+        loaderDelay: 1000
+      "
+    ></ng-container>
 	  ```
 
 4. To override the default loader and fallback MFE components, configured in `MfeModule.forRoot({ ... })`, specify content with `TemplateRef`, pass it to the appropriate properties `loader` and `fallback`:
@@ -496,6 +503,20 @@ export class AppRoutingModule {}
 ```
 
 ## Changelog
+
+### Changes in __v2.1.0__ 
+Fixed:
+- Fix error, if the backup option is also unavailable, then simply clear the view;
+
+Refactored:
+- Renamed `MfeService` to `RemoteComponentLoader`;
+- Renamed `MfeComponentsCache` to `RemoteComponentsCache`;
+- Renamed `ModularRemoteComponent` type to `RemoteComponentWithModule`;
+- Wrapped to `ngZone.runOutside` the `loadMfe` function calls inside the `RemoteComponentLoader`;
+- Added new type `ComponentWithNgModuleRef<TComponent, TModule>`, that holds component class `Type<T>` and `NgModuleRef`;
+- Changed cached value for `RemoteComponentWithModule` from `ComponentFactory` to `ComponentWithNgModuleRef`;
+- In `RemoteComponentLoader` (old name `MfeService`) renamed function `loadModularComponent` to `loadComponentWithModule`
+- Changed return type of method `loadComponentWithModule` inside class `RemoteComponentLoader` from `Promise<ComponentFactory<TComponent>>` to `Promise<ComponentWithNgModuleRef<TComponent, TModule>>`;
 
 ### Changes in __v2.0.0__ (_Breaking changes_)
 
@@ -653,6 +674,7 @@ __Why has the API changed?__ - The problem is that when you use the `[mfeOutlet]
 
 #### MfeComponentCache
 - Now the `MfeComponentCache` not only saves `ComponentFactory<T>` but also `Type<T>`;
+- In version 2.1.0 `ComponentFactory<T>` was replaced to `ComponentWithNgModuleRef<TComponent, TModule>`;
 
 #### DynamicComponentBinding
 - The `bindInputs()` and `bindOutputs()` methods now require `ComponentRef<any>` in the first argument, `MfeOutletInputs`/`MfeOutletOutputs` are method dependent in the second, and the third argument has been removed;

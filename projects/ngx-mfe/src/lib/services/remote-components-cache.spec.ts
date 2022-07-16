@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { MfeComponentsCache } from '.';
+import { RemoteComponentsCache } from '.';
 
-describe('MfeComponentsCache', () => {
-	let service: MfeComponentsCache;
+describe('RemoteComponentsCache', () => {
+	let service: RemoteComponentsCache;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({});
-		service = TestBed.inject(MfeComponentsCache);
+		service = TestBed.inject(RemoteComponentsCache);
 	});
 
 	it('should be created', () => {
