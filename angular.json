@@ -35,5 +35,7 @@
       }
     }
   },
-  "defaultProject": "ngx-mfe"
+  "cli": {
+    "analytics": "f4cceced-74e6-402c-ba25-05b16ec1da51"
+  }
 }
