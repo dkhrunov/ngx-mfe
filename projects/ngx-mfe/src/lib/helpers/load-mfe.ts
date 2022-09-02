@@ -41,7 +41,7 @@ export async function loadMfe<T = unknown>(
   const moduleName = _options.moduleName ?? exposedModule;
   const module = bundle[moduleName]
 
-  if (module) {
+  if (!module) {
     throw new Error(`Module with name "${moduleName}" does not exist in the exposed file. Key of exposed file must match with class name in this file (Key of exposed file it is key of  'exposes' object in webpack config inside ModuleFederationPlugin).`);
   }
 
