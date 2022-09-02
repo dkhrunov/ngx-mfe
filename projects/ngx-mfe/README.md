@@ -40,7 +40,7 @@ The key feature of the **ngx-mfe** library is ability to work with micro-fronten
 
 🔥 Load multiple micro-frontend directly from an HTML template with the ability to display a loader component during loading and a fallback component when an error occurs during loading and/or rendering of the mfe component.
 
-🔥 Easy to use, just declare structual directive `*mfeOutlet` in your template.
+🔥 Easy to use, just declare structural directive `*mfeOutlet` in your template.
 
 🔥 Supports Angular Standalone Components.
 
@@ -63,7 +63,7 @@ The key feature of the **ngx-mfe** library is ability to work with micro-fronten
     >
     > Since Angular v14 standalone component it is component that marked with `standalone: true` in `@Component({...})` decorator.
 
-    When you display a standalone MFE component through `[mfeOutlet]` directive you can omit `[mfeOutletModule]` input.
+    When you display a standalone MFE component through `[mfeOutlet]` directive you must omit `[mfeOutletModule]` input.
 
     ```typescript
     // Standalone Component - standalone.component.ts
