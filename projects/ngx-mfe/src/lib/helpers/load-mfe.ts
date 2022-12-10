@@ -20,7 +20,7 @@ export type LoadMfeOptions = {
 const loadMfeDefaultOptions: LoadMfeOptions = { type: 'module' };
 
 /**
- * Loads remote module.
+ * Loads remote bundle.
  *
  * @param remoteApp The name of the micro-frontend app decalred in ModuleFederationPlugin.
  * @param exposedModule  The key of the exposed module decalred in ModuleFederationPlugin.
@@ -39,6 +39,11 @@ export async function loadMfe<T = unknown>(
 			: { type: _options.type, remoteEntry, exposedModule, remoteName: remoteApp };
 	const bundle = await loadRemoteModule(loadRemoteModuleOptions);
   const moduleName = _options.moduleName ?? exposedModule;
+  const module = bundle[moduleName]
 
-	return bundle[moduleName];
+  if (!module) {
+    throw new Error(`Module with name "${moduleName}" does not exist in the exposed file. Key of exposed file must match with class name in this file (Key of exposed file it is key of  'exposes' object in webpack config inside ModuleFederationPlugin).`);
+  }
+
+	return module;
 }
