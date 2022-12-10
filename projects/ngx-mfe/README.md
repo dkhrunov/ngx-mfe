@@ -21,10 +21,10 @@ Have problems with updates? Check out the  [migration guides](../../migration-gu
 - [Changelog](#changelog)
 
 ## Version Compliance
-ngx-mfe                               | v1.0.0  | v1.0.5  | v2.0.0  | v3.0.0  |
---------------------------------------| ------- | ------- | ------- | ------- |
-Angular                               | v12.0.0 | v13.0.0 | v13.0.0 | v14.0.0 |
-@angular-architects/module-federation | v12.0.0 | v14.0.0 | v14.0.0 | v14.3.0 |
+ngx-mfe                               | v1.0.0  | v1.0.5  | v2.0.0  | v3.0.0  | v15.0.0 |
+--------------------------------------| ------- | ------- | ------- | ------- | ------- |
+Angular                               | v12.0.0 | v13.0.0 | v13.0.0 | v14.0.0 | v15.0.0 |
+@angular-architects/module-federation | v12.0.0 | v14.0.0 | v14.0.0 | v14.3.0 | v15.0.0 |
 
 ## Motivation
 
