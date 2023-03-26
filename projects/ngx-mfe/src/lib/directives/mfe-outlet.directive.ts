@@ -16,8 +16,8 @@ import {
 import { EChangesStrategy, TrackChanges } from '../decorators';
 import { delay, LoadMfeOptions } from '../helpers';
 import { NGX_MFE_OPTIONS } from '../injection-tokens';
-import { isRemoteComponentWithModule, RemoteComponentWithModule, NgxMfeOptions, RemoteComponent, StandaloneRemoteComponent } from '../interfaces';
-import { DynamicComponentBinding, RemoteComponentsCache, RemoteComponentLoader } from '../services';
+import { isRemoteComponentWithModule, NgxMfeOptions, RemoteComponent, RemoteComponentWithModule, StandaloneRemoteComponent } from '../interfaces';
+import { DynamicComponentBinding, RemoteComponentLoader, RemoteComponentsCache } from '../services';
 import { MfeOutletInputs, MfeOutletOutputs } from '../types';
 
 /**

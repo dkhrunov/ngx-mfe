@@ -1,8 +1,9 @@
 import { loadRemoteEntry } from '@angular-architects/module-federation';
-import { ModuleWithProviders, NgModule } from '@angular/core';
+import { APP_INITIALIZER, ModuleWithProviders, NgModule, Provider } from '@angular/core';
+import { firstValueFrom, from, Observable, tap } from 'rxjs';
 import { MfeOutletDirective } from './directives';
 import { NGX_MFE_OPTIONS } from './injection-tokens';
-import { NgxMfeOptions } from './interfaces';
+import { isNgxMfeConfigAsync, MfeConfig, NgxMfeForRootOptions } from './interfaces';
 import { MfeRegistry } from './registry';
 
 /**
@@ -22,28 +23,45 @@ export class MfeModule {
 	 * Sets global configuration of Mfe lib.
 	 * @param options Object of options.
 	 */
-	public static forRoot(options: NgxMfeOptions): ModuleWithProviders<MfeModule> {
-		const mfeRegistry = MfeRegistry.getInstance(options.mfeConfig);
-		const loadMfeBundle = loadMfeBundleWithMfeRegistry(mfeRegistry);
+	public static forRoot(options: NgxMfeForRootOptions): ModuleWithProviders<MfeModule> {
+    const { preload, mfeConfig } = options;
+		const providers: Provider[] = [
+      {
+        provide: NGX_MFE_OPTIONS,
+        useValue: options,
+      },
+    ];
 
-		if (options.preload) {
-			options.preload.map((mfe) => loadMfeBundle(mfe));
-		}
+    if (isNgxMfeConfigAsync(mfeConfig)) {
+      providers.push({
+        provide: APP_INITIALIZER,
+        useFactory: (): (() => Observable<MfeConfig>) => {
+          return () => {
+            return from(mfeConfig.useLoader(...(mfeConfig.deps ?? []))).pipe(
+              tap((config) => initializeMfeRegistry(config, preload))
+            );
+          };
+        },
+        multi: true,
+      });
+    } else {
+      initializeMfeRegistry(mfeConfig, preload);
+    }
 
-		return {
-			ngModule: MfeModule,
-			providers: [
-				{
-					provide: MfeRegistry,
-					useValue: mfeRegistry,
-				},
-				{
-					provide: NGX_MFE_OPTIONS,
-					useValue: options,
-				},
-			],
-		};
+    return { ngModule: MfeModule, providers };
 	}
+}
+
+function initializeMfeRegistry(config: MfeConfig, preload?: string[]): MfeRegistry {
+  const mfeRegistry = MfeRegistry.instance;
+  mfeRegistry.setMfeConfig(config);
+  const loadMfeBundle = loadMfeBundleWithMfeRegistry(mfeRegistry);
+
+  if (preload) {
+    preload.map((mfe) => loadMfeBundle(mfe));
+  }
+
+  return mfeRegistry;
 }
 
 /**
@@ -54,9 +72,9 @@ export class MfeModule {
  * @param mfeRegistry Registry of micro-frontends apps.
  */
 function loadMfeBundleWithMfeRegistry(mfeRegistry: MfeRegistry): (mfe: string) => Promise<void> {
-	return (mfeString: string): Promise<void> => {
-		const remoteEntry = mfeRegistry.getMfeRemoteEntry(mfeString);
+  return async (mfeString: string): Promise<void> => {
+    const remoteEntry = await firstValueFrom(mfeRegistry.getMfeRemoteEntry(mfeString));
 
-		return loadRemoteEntry({ type: 'module', remoteEntry});
-	};
+    return loadRemoteEntry({ type: 'module', remoteEntry });
+  };
 }

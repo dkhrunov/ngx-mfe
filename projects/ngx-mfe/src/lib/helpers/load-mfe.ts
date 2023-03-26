@@ -1,6 +1,7 @@
-import { Type } from '@angular/core';
 import { loadRemoteModule, LoadRemoteModuleOptions } from '@angular-architects/module-federation';
+import { Type } from '@angular/core';
 
+import { firstValueFrom } from 'rxjs';
 import { MfeRegistry } from '../registry';
 
 /**
@@ -32,7 +33,7 @@ export async function loadMfe<T = unknown>(
 	options: LoadMfeOptions = loadMfeDefaultOptions
 ): Promise<Type<T>> {
   const _options: LoadMfeOptions = { ...loadMfeDefaultOptions, ...options };
-	const remoteEntry = MfeRegistry.getInstance().getMfeRemoteEntry(remoteApp);
+  const remoteEntry = await firstValueFrom(MfeRegistry.instance.getMfeRemoteEntry(remoteApp));
 	const loadRemoteModuleOptions: LoadRemoteModuleOptions =
 		_options.type === 'module'
 			? { type: _options.type, remoteEntry, exposedModule }
