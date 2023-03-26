@@ -1,14 +1,44 @@
+import { Observable } from 'rxjs';
 import { MfeConfig } from './mfe-config.interface';
 import { RemoteComponent } from './remote-component.interface';
+
+/**
+ * Sync list of available micro-frontends.
+ */
+export type NgxMfeSyncConfig = MfeConfig;
+
+/**
+ * Async list of available micro-frontends.
+ */
+export type NgxMfeAsyncConfig = {
+   /**
+    * A function to invoke to load a `MfeConfig`. The function is invoked with
+    * resolved values of `token`s in the `deps` field.
+    */
+  useLoader: (...deps: any[]) => Observable<NgxMfeSyncConfig> | Promise<NgxMfeSyncConfig>;
+   /**
+    * A list of `token`s to be resolved by the injector. The list of values is then
+    * used as arguments to the `useLoader` function.
+    */
+  deps?: any[];
+};
+
+/**
+ * Type of sync / async list of available micro-frontends.
+ */
+export type NgxMfeConfigOption = NgxMfeSyncConfig | NgxMfeAsyncConfig;
+
+/**
+ * Type guard check that NgxMfeConfig is async list of available micro-frontends.
+ */
+export const isNgxMfeConfigAsync = (config: NgxMfeConfigOption): config is NgxMfeAsyncConfig => {
+	return Object.prototype.hasOwnProperty.call(config, 'useLoader');
+}
 
 /**
  * Global options.
  */
 export interface NgxMfeOptions {
-	/**
-	 * Options for each micro-frontend app.
-	 */
-	mfeConfig: MfeConfig;
 	/**
    * List of names of remote appls, declared apps will be downloaded immediately and stored in the cache.
 	 */
@@ -36,4 +66,14 @@ export interface NgxMfeOptions {
 	 * For better UX, add this micro-frontend to {@link preload} array.
 	 */
 	fallback?: RemoteComponent;
+}
+
+/**
+ * Options forRoot configuration of `NgxMfeModule`
+ */
+export type NgxMfeForRootOptions = NgxMfeOptions & {
+  /**
+   * List of available micro-frontends.
+	 */
+  mfeConfig: NgxMfeConfigOption;
 }

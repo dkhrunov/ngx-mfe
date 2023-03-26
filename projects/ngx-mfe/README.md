@@ -21,10 +21,12 @@ Have problems with updates? Check out the  [migration guides](../../migration-gu
 - [Changelog](#changelog)
 
 ## Version Compliance
-ngx-mfe                               | v1.0.0  | v1.0.5  | v2.0.0  | v3.0.0  | v15.0.0 |
---------------------------------------| ------- | ------- | ------- | ------- | ------- |
-Angular                               | v12.0.0 | v13.0.0 | v13.0.0 | v14.0.0 | v15.0.0 |
-@angular-architects/module-federation | v12.0.0 | v14.0.0 | v14.0.0 | v14.3.0 | v15.0.0 |
+ngx-mfe                               | v1.0.0  | v1.0.5  | v2.0.0  | v3.0.0  |
+--------------------------------------| ------- | ------- | ------- | ------- |
+Angular                               | v12.0.0 | v13.0.0 | v13.0.0 | v14.0.0 |
+@angular-architects/module-federation | v12.0.0 | v14.0.0 | v14.0.0 | v14.3.0 |
+
+**Since v15.0.0 version of ngx-mfe library is compatible with Angular version**
 
 ## Motivation
 
@@ -211,7 +213,15 @@ export class Feature1Module {}
 
 ### List of all available options:
 
-- **mfeConfig** - object where **key** is micro-frontend app name specified in `ModuleFederationPlugin` (webpack.config.js) and **value** is remoteEntryUrl string. All data will be sets to [MfeRegistry](https://github.com/dkhrunov/ngx-mfe/blob/master/projects/ngx-mfe/src/lib/registry/mfe-registry.ts).
+- **mfeConfig**
+
+  ----------------
+
+  **Sync variant of providing mfeConfig:**
+  
+  ----------------
+
+  object where **key** is micro-frontend app name specified in `ModuleFederationPlugin` (webpack.config.js) and **value** is remoteEntryUrl string. All data will be sets to [MfeRegistry](https://github.com/dkhrunov/ngx-mfe/blob/master/projects/ngx-mfe/src/lib/registry/mfe-registry.ts).
 
 	**Key** it's the name same specified in webpack.config.js of MFE (Remote) in option name in `ModuleFederationPlugin`.
 
@@ -223,20 +233,59 @@ export class Feature1Module {}
   
 	Example <http://localhost:4201/remoteEntry.js>
 
-	You can get `MfeRegistry` from DI:
+  >	(Deprecated from v15.1.0) You can get `MfeRegistry` from DI :
+  >
+  >	```typescript
+  >	class AppComponent {
+  >
+  >		constructor(public mfeRegistry: MfeRegistry) {}
+  >	}
+  >	```
+
+	You can even get instace of `MfeRegistry` like this:
 
 	```typescript
-	class AppComponent {
-
-		constructor(public mfeRegistry: MfeRegistry) {}
-	}
+	const mfeRegistry: MfeRegistry = MfeRegistry.instace;
 	```
 
-	Or you can even get `MfeRegistry` without DI, because this class is written as a singleton:
+  ----------------
+  
+  **Async variant of providing mfeConfig:**
+  
+  ----------------
 
-	```typescript
-	const mfeRegistry: MfeRegistry = MfeRegistry.getInstance();
+  > NOTE: The application will wait for initialization and completes when the promise resolves or the observable completes.
+  >
+  > Because under the hood used `APP_INITIALIZER` injection token with useFactory that returns Observale or Promise. [More about `APP_INITIALIZER`](https://angular.io/api/core/APP_INITIALIZER)
+
+
+  Also you can provide mfeConfig with loading it from external resource as `Observale<MfeConfig>` or `Promise<MfeConfig>`, for this you should provide this type of object:
+
+  ```typescript
+	type NgxMfeAsyncConfig = {
+    /**
+      * A function to invoke to load a `MfeConfig`. The function is invoked with
+      * resolved values of `token`s in the `deps` field.
+      */
+    useLoader: (...deps: any[]) => Observable<NgxMfeSyncConfig> | Promise<NgxMfeSyncConfig>;
+    /**
+      * A list of `token`s to be resolved by the injector. The list of values is then
+      * used as arguments to the `useLoader` function.
+      */
+    deps?: any[];
+  };
 	```
+
+  For example:
+
+  ```typescript
+  mfeConfig: {
+	 	useLoader:  (http: HttpClient): Observable<MfeConfig> =>
+      http.get<MfeConfig>('/manifest.json'),
+    deps: [HttpClient]
+  },
+  ```
+
 
 - **preload** (Optional) - a list of micro-frontend names, their bundles (remoteEntry.js) will be loaded and saved in the cache when the application starts.
 
