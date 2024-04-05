@@ -16,7 +16,7 @@ import {
 import { EChangesStrategy, TrackChanges } from '../decorators';
 import { delay, LoadMfeOptions } from '../helpers';
 import { NGX_MFE_OPTIONS } from '../injection-tokens';
-import { isRemoteComponentWithModule, NgxMfeOptions, RemoteComponent, RemoteComponentWithModule, StandaloneRemoteComponent } from '../interfaces';
+import { isRemoteComponentWithModule, isStandaloneRemoteComponent, NgxMfeOptions, RemoteComponent, RemoteComponentWithModule, StandaloneRemoteComponent } from '../interfaces';
 import { DynamicComponentBinding, RemoteComponentLoader, RemoteComponentsCache } from '../services';
 import { MfeOutletInputs, MfeOutletOutputs } from '../types';
 
@@ -300,7 +300,14 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
         this._bindMfeData();
       }
     } catch (error) {
+      console.group(`Error in Microfronted "${this._remoteComponent.app}"`);
+      if (isRemoteComponentWithModule(this._remoteComponent)) {
+        console.log('module :>> ', this._remoteComponent.module);
+      }
+		  console.log('component :>> ', this._remoteComponent.component);
+      console.log('is standalone :>> ', isStandaloneRemoteComponent(this._remoteComponent));
       console.error(error);
+      console.groupEnd();
       this._showFallback();
     }
   }
