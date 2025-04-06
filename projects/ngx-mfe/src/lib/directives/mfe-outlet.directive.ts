@@ -98,10 +98,11 @@ import { MfeOutletInputs, MfeOutletOutputs } from '../types';
  * ```
  */
 @Directive({
-  // eslint-disable-next-line @angular-eslint/directive-selector
-  selector: '[mfeOutlet]',
-  exportAs: 'mfeOutlet',
-  providers: [DynamicComponentBinding],
+    // eslint-disable-next-line @angular-eslint/directive-selector
+    selector: '[mfeOutlet]',
+    exportAs: 'mfeOutlet',
+    providers: [DynamicComponentBinding],
+    standalone: false
 })
 export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
   /**
