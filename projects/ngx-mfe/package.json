@@ -1,6 +1,6 @@
 {
   "name": "ngx-mfe",
-  "version": "18.0.0",
+  "version": "19.0.0",
   "license": "MIT",
   "repository": {
     "type": "GitHub",
@@ -19,9 +19,9 @@
     "email": "therealpanda98@gmail.com"
   },
   "peerDependencies": {
-    "@angular/common": "^18.0.0",
-    "@angular/core": "^18.0.0",
-    "@angular-architects/module-federation": "^18.0.0",
+    "@angular/common": "^19.0.0",
+    "@angular/core": "^19.0.0",
+    "@angular-architects/module-federation": "^19.0.0",
     "rxjs": "^7.0.0"
   },
   "dependencies": {

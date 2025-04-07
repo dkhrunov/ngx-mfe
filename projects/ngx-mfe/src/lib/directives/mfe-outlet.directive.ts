@@ -10,14 +10,25 @@ import {
   OnChanges,
   OnDestroy,
   TemplateRef,
-  ViewContainerRef
+  ViewContainerRef,
 } from '@angular/core';
 
 import { EChangesStrategy, TrackChanges } from '../decorators';
 import { delay, LoadMfeOptions } from '../helpers';
 import { NGX_MFE_OPTIONS } from '../injection-tokens';
-import { isRemoteComponentWithModule, isStandaloneRemoteComponent, NgxMfeOptions, RemoteComponent, RemoteComponentWithModule, StandaloneRemoteComponent } from '../interfaces';
-import { DynamicComponentBinding, RemoteComponentLoader, RemoteComponentsCache } from '../services';
+import {
+  isRemoteComponentWithModule,
+  isStandaloneRemoteComponent,
+  NgxMfeOptions,
+  RemoteComponent,
+  RemoteComponentWithModule,
+  StandaloneRemoteComponent,
+} from '../interfaces';
+import {
+  DynamicComponentBinding,
+  RemoteComponentLoader,
+  RemoteComponentsCache,
+} from '../services';
 import { MfeOutletInputs, MfeOutletOutputs } from '../types';
 
 /**
@@ -102,6 +113,7 @@ import { MfeOutletInputs, MfeOutletOutputs } from '../types';
   selector: '[mfeOutlet]',
   exportAs: 'mfeOutlet',
   providers: [DynamicComponentBinding],
+  standalone: false,
 })
 export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
   /**
@@ -130,11 +142,11 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
   @Input('mfeOutletInputs')
   public inputs?: MfeOutletInputs;
 
-   /**
-    * A map of Outputs for a micro-frontend component.
-    */
-   @Input('mfeOutletOutputs')
-   public outputs?: MfeOutletOutputs;
+  /**
+   * A map of Outputs for a micro-frontend component.
+   */
+  @Input('mfeOutletOutputs')
+  public outputs?: MfeOutletOutputs;
 
   /**
    * Custom injector for micro-frontend component.
@@ -183,16 +195,22 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
   @Input('mfeOutletOptions')
   public options?: LoadMfeOptions;
 
-  private _loader?: RemoteComponent | TemplateRef<unknown> = this._options.loader;
-  private _fallback?: RemoteComponent | TemplateRef<unknown> = this._options.fallback;
+  private _loader?: RemoteComponent | TemplateRef<unknown> =
+    this._options.loader;
+  private _fallback?: RemoteComponent | TemplateRef<unknown> =
+    this._options.fallback;
 
   private _mfeComponentRef?: ComponentRef<unknown>;
-  private _loaderComponentRef?: ComponentRef<unknown> | EmbeddedViewRef<unknown>;
-  private _fallbackComponentRef?: ComponentRef<unknown> | EmbeddedViewRef<unknown>;
+  private _loaderComponentRef?:
+    | ComponentRef<unknown>
+    | EmbeddedViewRef<unknown>;
+  private _fallbackComponentRef?:
+    | ComponentRef<unknown>
+    | EmbeddedViewRef<unknown>;
 
   /**
-  * Remote component object.
-  */
+   * Remote component object.
+   */
   private get _remoteComponent(): RemoteComponent {
     if (this.mfeModule) {
       return {
@@ -296,7 +314,10 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
   private async _showMfe(): Promise<void> {
     try {
       if (this.mfeApp) {
-        this._mfeComponentRef = await this._createView(this._remoteComponent, this.options);
+        this._mfeComponentRef = await this._createView(
+          this._remoteComponent,
+          this.options
+        );
         this._bindMfeData();
       }
     } catch (error) {
@@ -304,8 +325,11 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
       if (isRemoteComponentWithModule(this._remoteComponent)) {
         console.log('module :>> ', this._remoteComponent.module);
       }
-		  console.log('component :>> ', this._remoteComponent.component);
-      console.log('is standalone :>> ', isStandaloneRemoteComponent(this._remoteComponent));
+      console.log('component :>> ', this._remoteComponent.component);
+      console.log(
+        'is standalone :>> ',
+        isStandaloneRemoteComponent(this._remoteComponent)
+      );
       console.error(error);
       console.groupEnd();
       this._showFallback();
@@ -377,9 +401,9 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
     else {
       const componentRef: ComponentRef<T> = isRemoteComponentWithModule(content)
         ? // for modular Angular (any version) components
-        await this._createRemoteComponent(content, options)
+          await this._createRemoteComponent(content, options)
         : // for standalone Angular v13+ components
-        await this._createStandaloneRemoteComponent(content, options)
+          await this._createStandaloneRemoteComponent(content, options);
 
       componentRef.changeDetectorRef.detectChanges();
       return componentRef;
@@ -396,11 +420,11 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
     remoteComponent: RemoteComponentWithModule,
     options?: LoadMfeOptions
   ): Promise<ComponentRef<TComponent>> {
-    const { component, ngModuleRef } = await this._remoteComponentLoader.loadComponentWithModule<TComponent, unknown>(
-      remoteComponent,
-      this.injector,
-      options
-    );
+    const { component, ngModuleRef } =
+      await this._remoteComponentLoader.loadComponentWithModule<
+        TComponent,
+        unknown
+      >(remoteComponent, this.injector, options);
 
     this._clearView();
 
@@ -422,10 +446,11 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
     remoteComponent: StandaloneRemoteComponent,
     options?: LoadMfeOptions
   ): Promise<ComponentRef<TComponent>> {
-    const component = await this._remoteComponentLoader.loadStandaloneComponent<TComponent>(
-      remoteComponent,
-      options
-    );
+    const component =
+      await this._remoteComponentLoader.loadStandaloneComponent<TComponent>(
+        remoteComponent,
+        options
+      );
 
     this._clearView();
 
@@ -452,7 +477,7 @@ export class MfeOutletDirective implements OnChanges, AfterViewInit, OnDestroy {
     this._dynamicBinding.bindOutputs(this._mfeComponentRef, this.outputs ?? {});
 
     // TODO похоже что не актуально больше работает все и без этой штуки все
-    
+
     // Workaround for bug related to Angular and dynamic components.
     // Link - https://github.com/angular/angular/issues/36667#issuecomment-926526405
     this._mfeComponentRef?.injector.get(ChangeDetectorRef).detectChanges();
